@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Amin Behrad — Finance Analyst &amp; AI Automation</title>
+<meta name="description" content="Amin Behrad, M.Sc. — finance analyst with graduate economics training, CFA Program (all three levels passed), FRM (both parts passed), and hands-on AI automation. Vancouver, BC." />
+<meta name="author" content="Amin Behrad" />
+<link rel="canonical" href="https://aminbehrad.com/" />
+<!-- Open Graph / social share -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Amin Behrad — Finance Analyst & AI Automation" />
+<meta property="og:description" content="Graduate-trained economist · CFA Program (all three levels passed) · FRM (both parts passed) · AI-augmented analyst. Vancouver, BC." />
+<meta property="og:url" content="https://aminbehrad.com/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Amin Behrad — Finance Analyst & AI Automation" />
+<meta name="twitter:description" content="Graduate-trained economist · CFA Program (all three levels passed) · FRM (both parts passed) · AI-augmented analyst." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f5f8b'/%3E%3Ctext x='32' y='44' font-family='Helvetica,Arial,sans-serif' font-size='34' font-weight='700' fill='white' text-anchor='middle'%3EAB%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#f7f8fa; --panel:#ffffff; --ink:#16202b; --muted:#5b6875;
+    --line:#e4e8ee; --accent:#1f5f8b; --accent-soft:#e8f1f8; --chip:#eef1f5;
+    --shadow:0 1px 2px rgba(16,32,45,.04),0 8px 24px rgba(16,32,45,.06);
+    --max:960px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0e1319; --panel:#151c25; --ink:#e7edf3; --muted:#9aa7b4;
+      --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1319; --panel:#151c25; --ink:#e7edf3; --muted:#9aa7b4;
+    --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --bg:#f7f8fa; --panel:#ffffff; --ink:#16202b; --muted:#5b6875;
+    --line:#e4e8ee; --accent:#1f5f8b; --accent-soft:#e8f1f8; --chip:#eef1f5;
+    --shadow:0 1px 2px rgba(16,32,45,.04),0 8px 24px rgba(16,32,45,.06);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:var(--max); margin:0 auto; padding:0 20px}
+
+  /* STICKY NAV */
+  .nav{position:sticky; top:0; z-index:8; backdrop-filter:saturate(180%) blur(10px);
+    background:color-mix(in srgb,var(--bg) 82%, transparent); border-bottom:1px solid var(--line)}
+  .nav .wrap{display:flex; align-items:center; gap:6px; height:52px; overflow-x:auto}
+  .nav a{font-size:13.5px; color:var(--muted); padding:6px 10px; border-radius:8px; white-space:nowrap}
+  .nav a:hover{color:var(--ink); background:var(--chip); text-decoration:none}
+  .nav .brand{font-weight:800; color:var(--ink); margin-right:auto}
+  .nav .cta{color:#fff; background:var(--accent); font-weight:600}
+  .nav .cta:hover{color:#fff; opacity:.92; background:var(--accent)}
+
+  .section{padding:34px 0; border-top:1px solid var(--line); scroll-margin-top:64px}
+  .section:first-of-type{border-top:0}
+  h1,h2,h3{line-height:1.25; margin:0}
+  h2.title{font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:20px; font-weight:700}
+
+  /* HERO */
+  header.hero{padding:52px 0 30px}
+  .hero .name{font-size:clamp(30px,6vw,44px); font-weight:800; letter-spacing:-.02em}
+  .hero .role{font-size:clamp(16px,2.6vw,19px); color:var(--muted); margin-top:8px; font-weight:500}
+  .hero .lede{margin-top:18px; max-width:680px; font-size:17px; color:var(--ink)}
+  .contact{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px}
+  .contact a,.contact span{
+    display:inline-flex; align-items:center; gap:7px; background:var(--panel);
+    border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:14px;
+    color:var(--ink); box-shadow:var(--shadow)
+  }
+  .contact a:hover{border-color:var(--accent); text-decoration:none}
+  .contact svg{width:15px; height:15px; opacity:.8}
+
+  /* CREDENTIAL BANNER */
+  .creds{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px}
+  .cred{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; box-shadow:var(--shadow)}
+  .cred .big{font-size:15px; font-weight:700}
+  .cred .sub{font-size:13px; color:var(--muted); margin-top:4px}
+
+  /* GENERIC CARD LIST */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:var(--shadow); margin-bottom:16px}
+  .card:last-child{margin-bottom:0}
+  .row{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:baseline}
+  .row .lead{font-size:17px; font-weight:700}
+  .row .org{color:var(--accent); font-weight:600}
+  .row .when{font-size:13px; color:var(--muted); white-space:nowrap}
+  .card ul{margin:12px 0 0; padding-left:18px}
+  .card li{margin:6px 0; color:var(--ink)}
+  .note{font-size:14px; color:var(--muted); margin-top:8px}
+
+  /* PROJECTS */
+  .projgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+  .proj{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow); display:flex; flex-direction:column}
+  .proj h3{font-size:16px; font-weight:700}
+  .proj .kicker{font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:6px}
+  .proj p{font-size:14px; color:var(--muted); margin:8px 0 0}
+  .proj .tags{margin-top:12px; display:flex; flex-wrap:wrap; gap:6px}
+  .tag{font-size:11.5px; background:var(--chip); border:1px solid var(--line); color:var(--muted); border-radius:6px; padding:3px 8px}
+  .proj .role{font-size:13px; color:var(--ink); margin-top:10px; padding-top:10px; border-top:1px dashed var(--line)}
+  .proj .role b{color:var(--accent)}
+  .proj .live{margin-top:10px; font-size:13px; font-weight:600}
+  .proj-foot{margin-top:auto}
+  .disclosure{background:var(--accent-soft); border:1px solid var(--line); border-radius:12px; padding:12px 16px; font-size:14px; color:var(--ink); margin-bottom:18px}
+  .disclosure b{color:var(--accent)}
+
+  /* CTA */
+  .cta-box{background:var(--accent-soft); border:1px solid var(--line); border-radius:16px; padding:26px; text-align:center; box-shadow:var(--shadow)}
+  .cta-box h2{font-size:22px; margin-bottom:8px}
+  .cta-box p{color:var(--muted); margin:0 auto 18px; max-width:520px; font-size:15px}
+  .btns{display:flex; gap:12px; justify-content:center; flex-wrap:wrap}
+  .btn{display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:10px; font-size:15px; font-weight:600; border:1px solid var(--accent); cursor:pointer}
+  .btn.primary{background:var(--accent); color:#fff}
+  .btn.primary:hover{opacity:.92; text-decoration:none; color:#fff}
+  .btn.ghost{background:transparent; color:var(--accent)}
+  .btn.ghost:hover{background:var(--panel); text-decoration:none}
+
+  /* SKILLS */
+  .skills{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px}
+  .skillcol h3{font-size:14px; margin-bottom:8px}
+  .skillchips{display:flex; flex-wrap:wrap; gap:7px}
+  .skillchips span{font-size:13px; background:var(--chip); border:1px solid var(--line); border-radius:7px; padding:4px 10px}
+
+  footer{padding:30px 0 50px; color:var(--muted); font-size:13px; text-align:center; border-top:1px solid var(--line)}
+
+  .toggle{position:fixed; bottom:18px; right:18px; z-index:20; width:42px; height:42px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer; box-shadow:var(--shadow); font-size:17px}
+
+  @media print{
+    .toggle,.nav,#contact{display:none}
+    body{background:#fff; color:#000; font-size:12px}
+    .section{padding:14px 0; break-inside:avoid}
+    .card,.proj,.cred{box-shadow:none; break-inside:avoid}
+    header.hero{padding:10px 0}
+    a{color:#000}
+  }
+</style>
+</head>
+<body>
+<button class="toggle" id="themeToggle" aria-label="Toggle light/dark">◐</button>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">Amin Behrad</a>
+    <a href="#credentials">Credentials</a>
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#education">Education</a>
+    <a href="#skills">Skills</a>
+    <a class="cta" href="#contact">Contact</a>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="name">Amin Behrad<span style="font-weight:500;color:var(--muted)">, M.Sc.</span></div>
+    <div class="role">Finance &amp; Economics Analyst · CFA Program (all three levels passed) · FRM (both parts passed)</div>
+    <p class="lede">
+      Graduate-trained economist and analyst pairing exam-tested finance fundamentals with hands-on AI automation.
+      I use large-language-model coding agents to design and ship working analytical tools — from valuation and
+      personal-finance systems to macro-economic models — and I'm looking to bring that credential base and that
+      AI edge into a risk, valuations, research, or quantitative-analysis role.
+    </p>
+    <nav class="contact">
+      <a href="mailto:amin.behrad1991@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        amin.behrad1991@gmail.com
+      </a>
+      <a href="https://www.linkedin.com/in/aminbehrad" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8V21H9z"/></svg>
+        linkedin.com/in/aminbehrad
+      </a>
+      <a href="https://github.com/AminTheEconomist" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.36 1.12 2.94.85.09-.66.35-1.12.63-1.38-2.22-.26-4.55-1.14-4.55-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg>
+        github.com/AminTheEconomist
+      </a>
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Vancouver, BC (Metro Vancouver) · Permanent Resident
+      </span>
+    </nav>
+  </header>
+
+  <!-- CREDENTIALS BANNER -->
+  <section class="section" id="credentials">
+    <h2 class="title">Credentials &amp; Qualifications</h2>
+    <div class="creds">
+      <div class="cred">
+        <div class="big">CFA Program</div>
+        <div class="sub">Passed Levels I, II &amp; III. Charter pending the work-experience requirement.</div>
+      </div>
+      <div class="cred">
+        <div class="big">FRM Exam (GARP)</div>
+        <div class="sub">Passed Parts I &amp; II. Designation pending the work-experience requirement.</div>
+      </div>
+      <div class="cred">
+        <div class="big">GRE Quantitative</div>
+        <div class="sub">170 / 170 (perfect quant score), Oct 2019.</div>
+      </div>
+      <div class="cred">
+        <div class="big">Bloomberg</div>
+        <div class="sub">Market Concepts (BMC) &amp; ESG certificates, 2024.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section class="section" id="projects">
+    <h2 class="title">Selected Projects</h2>
+    <div class="disclosure">
+      <b>How these were built:</b> I <b>scoped, directed, and shipped</b> each of these by orchestrating AI coding agents
+      (Claude Code / LLMs) — defining the problem, the finance logic, and the acceptance criteria, then iterating the
+      build to a working result. I did not hand-write the production code; the value I bring is the domain framing and
+      the ability to turn an idea into a functioning tool quickly.
+    </div>
+    <div class="projgrid">
+
+      <div class="proj">
+        <div class="kicker">Equity Research</div>
+        <h3>Market Analyzer</h3>
+        <p>A report generator that evaluates a stock through five distinct investment lenses (value, growth, macro, quality, contrarian), producing a structured multi-perspective research note.</p>
+        <div class="role"><b>My role:</b> defined the five analyst frameworks and the reasoning each applies — drawn from the CFA curriculum — then directed the build and reviewed every output.</div>
+        <div class="proj-foot">
+          <div class="tags"><span class="tag">Valuation logic</span><span class="tag">LLM orchestration</span><span class="tag">Research workflow</span></div>
+        </div>
+      </div>
+
+      <div class="proj">
+        <div class="kicker">Macro &amp; Modeling</div>
+        <h3>Whole-Economy Stack</h3>
+        <p>A system-dynamics macro-economic model paired with an equity valuation model — connecting graduate economics to a hands-on, simulate-and-inspect toolset.</p>
+        <div class="role"><b>My role:</b> specified the economic structure and the stock-and-flow relationships from my MA-Economics training; directed the implementation.</div>
+        <div class="proj-foot">
+          <div class="tags"><span class="tag">System dynamics</span><span class="tag">Macro modeling</span><span class="tag">Equity model</span></div>
+        </div>
+      </div>
+
+      <div class="proj">
+        <div class="kicker">Personal Finance</div>
+        <h3>Life-Ledger / YMOYL System</h3>
+        <p>A two-lens personal-finance ledger built on real transaction data — a tax view and a Your-Money-or-Your-Life view — with income/expense reconciliation across several years.</p>
+        <div class="role"><b>My role:</b> the financial domain logic is entirely mine (categorization, reconciliation rules, the two reporting lenses); I directed the code.</div>
+        <div class="proj-foot">
+          <div class="tags"><span class="tag">Financial analysis</span><span class="tag">Data reconciliation</span><span class="tag">Python</span></div>
+        </div>
+      </div>
+
+      <div class="proj">
+        <div class="kicker">AI Automation</div>
+        <h3>Job-Application Autopilot</h3>
+        <p>An end-to-end pipeline that discovers roles, drafts application materials from a single source-of-truth profile, and stages them for review — with a compliance gate that enforces ethics-standard credential wording.</p>
+        <div class="role"><b>My role:</b> designed the workflow and the compliance rules end-to-end; directed and iterated the build. In active use.</div>
+        <div class="proj-foot">
+          <div class="tags"><span class="tag">Pipeline design</span><span class="tag">Automation</span><span class="tag">Compliance gate</span></div>
+        </div>
+      </div>
+
+      <div class="proj">
+        <div class="kicker">EdTech / SRS</div>
+        <h3>Recall &amp; Learn-Anything</h3>
+        <p>A spaced-repetition study app plus a source-to-flashcards pipeline that turns audiobooks, videos, and documents into structured decks — a repeatable AI-content workflow.</p>
+        <div class="role"><b>My role:</b> designed the study model and pipeline; directed the build and use it daily.</div>
+        <div class="proj-foot">
+          <a class="live" href="https://recall-srs.vercel.app" target="_blank" rel="noopener">View live ↗</a>
+          <div class="tags"><span class="tag">Spaced repetition</span><span class="tag">Content pipeline</span><span class="tag">PWA</span></div>
+        </div>
+      </div>
+
+      <div class="proj">
+        <div class="kicker">Venture</div>
+        <h3>AiWey Consulting</h3>
+        <p>Co-founded an AI-automation consulting practice, building the internal tooling and the client-facing service framework — AI orchestration applied to small owner-operator businesses.</p>
+        <div class="role"><b>My role:</b> co-founder; scope the services and build the delivery tooling.</div>
+        <div class="proj-foot">
+          <a class="live" href="https://aiwey.ai" target="_blank" rel="noopener">aiwey.ai ↗</a>
+          <div class="tags"><span class="tag">Consulting</span><span class="tag">Product framing</span><span class="tag">Co-founder</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <section class="section" id="experience">
+    <h2 class="title">Experience</h2>
+
+    <div class="card">
+      <div class="row"><span class="lead">Software &amp; Data Analyst</span><span class="when">Aug 2023 – Apr 2024</span></div>
+      <div class="row"><span class="org">Verus Valuations Ltd — Maple Ridge, BC</span></div>
+      <ul>
+        <li>On my own initiative, taught myself Excel macros and regex to automate the web data-gathering behind appraisal reports — work I had previously done by hand.</li>
+        <li>Built a depreciation-rate calculator and a few simple linear-regression models to estimate asset values from historical data.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="row"><span class="lead">Market Research Analyst</span><span class="when">Nov 2022 – Apr 2023</span></div>
+      <div class="row"><span class="org">Verus Valuations Ltd — Maple Ridge, BC</span></div>
+      <ul>
+        <li>Researched comparable assets and equipment and their fair-market values across multiple sources, and wrote the market-research sections of appraisal reports alongside the valuation professionals.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="row"><span class="lead">Teaching &amp; Research Assistant</span><span class="when">Jan 2021 – Aug 2022</span></div>
+      <div class="row"><span class="org">Simon Fraser University — Economics &amp; Beedie School of Business</span></div>
+      <ul>
+        <li>Led tutorials and office hours for Intro to Finance, International Finance, International Trade, Microeconomics, and Development Economics; graded and invigilated, with consistently strong teaching evaluations.</li>
+        <li>As Research Assistant, modeled risk attitude and time preference over the lifecycle using integral, differential, and linear-algebra formulations (three optimization framings); coded the simulations and visualizations in MAPLE.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="row"><span class="lead">Founder / Educator — Personal Finance &amp; Analytics</span><span class="when">2024 – Present</span></div>
+      <div class="row"><span class="org">Independent (non-discretionary)</span></div>
+      <ul>
+        <li>Provide non-discretionary personal-finance education (budgeting, debt management, ETF basics) and build RRSP-vs-TFSA tax-advantage optimizers and savings-rate trackers in Sheets and Python.</li>
+        <li>Align all communications with the CFA Institute and GARP codes of conduct; avoid misrepresentation.</li>
+      </ul>
+    </div>
+  </section>
+  <section class="section" id="education">
+    <h2 class="title">Education</h2>
+    <div class="card">
+      <div class="row"><span class="lead">M.A. Economics</span><span class="when">Sep 2020 – Aug 2022</span></div>
+      <div class="row"><span class="org">Simon Fraser University — Burnaby, BC</span></div>
+      <div class="note">Completed PhD-core coursework and comprehensive exams before moving to industry. References available.</div>
+    </div>
+    <div class="card">
+      <div class="row"><span class="lead">M.Sc. Financial Economics</span><span class="when">Sep 2017 – Sep 2020</span></div>
+      <div class="row"><span class="org">Sharif University of Technology</span></div>
+      <div class="note">GPA 3.9 / 4. Focus: finance, risk management, corporate governance, empirical corporate finance. Ranked 1st nationally on the graduate economics entrance exam (2017).</div>
+    </div>
+    <div class="card">
+      <div class="row"><span class="lead">B.Sc. &amp; M.Eng. Mechanical Engineering</span><span class="when">2010 – 2016</span></div>
+      <div class="row"><span class="org">Iran University of Science &amp; Technology</span></div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="section" id="skills">
+    <h2 class="title">Tools &amp; Methods</h2>
+    <div class="skills">
+      <div class="skillcol">
+        <h3>Finance &amp; Economics</h3>
+        <div class="skillchips">
+          <span>Valuation / appraisal</span><span>Financial modeling</span><span>Risk concepts (VaR, stress testing)</span><span>Equity research</span><span>Macroeconomics</span><span>Corporate finance</span>
+        </div>
+      </div>
+      <div class="skillcol">
+        <h3>Data &amp; Programming</h3>
+        <div class="skillchips">
+          <span>Python</span><span>SQL</span><span>Excel / VBA macros</span><span>Regex</span><span>Linear regression</span><span>TensorFlow / Keras</span><span>System dynamics (Vensim)</span>
+        </div>
+      </div>
+      <div class="skillcol">
+        <h3>AI &amp; Automation</h3>
+        <div class="skillchips">
+          <span>LLM orchestration</span><span>Claude Code / AI agents</span><span>Prompt &amp; workflow design</span><span>Pipeline automation</span>
+        </div>
+      </div>
+      <div class="skillcol">
+        <h3>Platforms</h3>
+        <div class="skillchips">
+          <span>Bloomberg Terminal (BMC)</span><span>Git / GitHub</span><span>Vercel</span><span>Google Sheets</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT CTA -->
+  <section class="section" id="contact">
+    <div class="cta-box">
+      <h2>Let's talk</h2>
+      <p>Open to risk, valuations, research, and quantitative-analysis roles across Canada. Happy to walk through any project or credential in detail.</p>
+      <div class="btns">
+        <a class="btn primary" href="mailto:amin.behrad1991@gmail.com">✉ Email me</a>
+        <a class="btn ghost" href="https://www.linkedin.com/in/aminbehrad" target="_blank" rel="noopener">Connect on LinkedIn</a>
+        <button class="btn ghost" id="pdfBtn">⤓ Save as PDF résumé</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Amin Behrad · Vancouver, BC · <a href="mailto:amin.behrad1991@gmail.com">amin.behrad1991@gmail.com</a><br>
+    Credential wording follows CFA Institute Standard VII(B) and the GARP Code of Conduct.
+  </footer>
+
+</div>
+
+<script>
+  (function(){
+    var btn=document.getElementById('themeToggle');
+    var root=document.documentElement;
+    var stored=null;
+    try{stored=localStorage.getItem('portfolio-theme');}catch(e){}
+    if(stored){root.setAttribute('data-theme',stored);}
+    btn.addEventListener('click',function(){
+      var cur=root.getAttribute('data-theme');
+      if(!cur){cur=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';}
+      var next=cur==='dark'?'light':'dark';
+      root.setAttribute('data-theme',next);
+      try{localStorage.setItem('portfolio-theme',next);}catch(e){}
+    });
+    var pdf=document.getElementById('pdfBtn');
+    if(pdf){pdf.addEventListener('click',function(){window.print();});}
+  })();
+</script>
+</body>
+</html>
