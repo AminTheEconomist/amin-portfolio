@@ -19,12 +19,17 @@ sales-to-capital, invested capital, ROIC) plus the terminal value and the equity
 | Sampled ρ(growth, margin) on the *Default* preset, 20,000 draws | 0.507 vs 0.500 target |
 | Dilution-adjusted Black-Scholes, textbook call (S=K=100, T=1, σ=20%, r=5%) | 10.4506 |
 | R&D converter, N=3, flat 300 | asset 600 / amortisation 300 / EBIT adj 0 |
+| Reverse DCF solves back to the input growth / margin / WACC at the DCF value | pass (1e-7) |
+| Invalid-trial guard (absurd S/Cap σ) discards and counts, statistics stay finite | pass |
+| **Excel VBA replay** — `vba_replay_apple.csv`: 500 trials sampled *and valued* by the workbook's own macros in Excel for Mac, re-valued by the engine | max relative diff 8.8e-12 |
 
 Run it:
 
 ```bash
 node validation/validate.js
 ```
+
+**How the VBA replay was produced.** Excel for Mac opened the workbook with the Apple inputs, `Monte Carlo!E6` was set to 500, the two macros were run, and columns G–J (sampled growth, margin, sales-to-capital, cost of capital) plus M (Excel's value per share) were exported at 10-decimal display precision. The harness feeds each row's four inputs to `runDCF` and compares with Excel's M.
 
 **What the Monte Carlo mirrors.** The workbook's VBA (`GenerateCorrelatedSamples` →
 `ValueGenerator`) draws four correlated normals via a Cholesky factor and writes them into

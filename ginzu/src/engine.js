@@ -228,28 +228,34 @@
     var sds = [+mc.sd[0], +mc.sd[1], +mc.sd[2], +mc.sd[3]];
     var L = cholesky(mc.corr);
     var rng = seed == null ? Math.random : mulberry32(seed), normal = makeNormal(rng);
-    var values = new Array(trials), samples = [];
+    var values = [], samples = [], invalid = 0;
     var base = Object.assign({}, inp);
     for (var i = 0; i < trials; i++) {
       var z = [normal(), normal(), normal(), normal()], x = [0, 0, 0, 0];
       for (var j = 0; j < 4; j++) { var s = 0; for (var k = 0; k <= j; k++) s += L[j][k] * z[k]; x[j] = s * sds[j] + means[j]; }
       // ValueGenerator: B27 ← growth, B28 ← margin, B30 & B31 ← sales/capital, CoC!B12 ← WACC
       base.gCAGR = x[0]; base.mTarget = x[1]; base.sc1 = x[2]; base.sc2 = x[2]; base.wacc = x[3];
-      values[i] = runDCF(base).vps;
-      if (i < 5) samples.push(x.slice());
+      var vps = runDCF(base).vps;
+      // a sampled sales-to-capital ≤ 0 makes reinvestment meaningless; the workbook would silently keep such a trial — we discard and count it
+      if (!(x[2] > 0) || !isFinite(vps)) { invalid++; continue; }
+      values.push(vps);
+      if (samples.length < 5) samples.push(x.slice());
     }
+    var n = values.length;
+    if (n < 2) throw new Error('Fewer than two valid trials — check the standard deviations (sales-to-capital must stay positive).');
     var sorted = values.slice().sort(function (a, b) { return a - b; });
-    var sum = 0; for (i = 0; i < trials; i++) sum += values[i];
-    var mean = sum / trials, v = 0; for (i = 0; i < trials; i++) v += (values[i] - mean) * (values[i] - mean);
-    var sd = Math.sqrt(v / (trials - 1));
+    var sum = 0; for (i = 0; i < n; i++) sum += values[i];
+    var mean = sum / n, v = 0; for (i = 0; i < n; i++) v += (values[i] - mean) * (values[i] - mean);
+    var sd = Math.sqrt(v / (n - 1));
     var pct = {}; [0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99].forEach(function (p) { pct[p] = percentileExc(sorted, p); });
-    var above = 0; for (i = 0; i < trials; i++) if (values[i] > +inp.price) above++;
+    var above = 0; for (i = 0; i < n; i++) if (values[i] > +inp.price) above++;
     // histogram
-    var bins = 30, lo = pct[0.01], hi = pct[0.99]; if (!(hi > lo)) { lo = sorted[0]; hi = sorted[trials - 1] + 1e-9; }
+    var bins = 30, lo = pct[0.01], hi = pct[0.99]; if (!(hi > lo)) { lo = sorted[0]; hi = sorted[n - 1] + 1e-9; }
     var w = (hi - lo) / bins, counts = new Array(bins).fill(0);
-    for (i = 0; i < trials; i++) { var b = Math.floor((values[i] - lo) / w); if (b < 0) b = 0; if (b >= bins) b = bins - 1; counts[b]++; }
-    return { values: values, sorted: sorted, mean: mean, median: pct[0.5], sd: sd, pct: pct, pAbove: above / trials,
-             hist: { lo: lo, hi: hi, w: w, counts: counts }, samples: samples, min: sorted[0], max: sorted[trials - 1] };
+    for (i = 0; i < n; i++) { var b = Math.floor((values[i] - lo) / w); if (b < 0) b = 0; if (b >= bins) b = bins - 1; counts[b]++; }
+    return { values: values, sorted: sorted, mean: mean, median: pct[0.5], sd: sd, pct: pct, pAbove: above / n,
+             hist: { lo: lo, hi: hi, w: w, counts: counts }, samples: samples, min: sorted[0], max: sorted[n - 1],
+             requested: trials, invalid: invalid };
   }
   function mcDefaults() {
     return {
@@ -278,7 +284,31 @@
     return grid;
   }
 
+  /* ---------- Reverse DCF: the input value at which value/share equals a target price ---------- */
+  function solveFor(inp, key, lo, hi, targetVps) {
+    var f = function (v) { var b = Object.assign({}, inp); b[key] = v; if (key === 'sc1') b.sc2 = v; var r = runDCF(b); return r.gT >= r.waccT ? NaN : r.vps - targetVps; };
+    var flo = f(lo), fhi = f(hi);
+    if (!isFinite(flo) || !isFinite(fhi) || flo * fhi > 0) return null;
+    for (var i = 0; i < 200; i++) {
+      var mid = (lo + hi) / 2, fm = f(mid);
+      if (!isFinite(fm)) return null;
+      if (Math.abs(fm) < 1e-10 || (hi - lo) < 1e-12) return mid;
+      if (flo * fm < 0) { hi = mid; fhi = fm; } else { lo = mid; flo = fm; }
+    }
+    return (lo + hi) / 2;
+  }
+
+  /* ---------- Multiples implied by the DCF value, next to the same multiples at the market price ---------- */
+  function impliedMultiples(inp, out) {
+    var ni = (+inp.ebit - (+inp.interest || 0)) * (1 - +inp.taxEff); // approximate net income: EBIT − interest, taxed at the effective rate
+    var mktEquity = +inp.price * +inp.shares;
+    var mktEV = mktEquity + out.debt + out.minority - +inp.cash - (+inp.nonOp || 0);
+    var mk = function (ev, eq) { return { evEbit: ev / out.ebit[0], evSales: ev / out.rev[0], pe: ni > 0 ? eq / ni : NaN, pb: +inp.bookEquity > 0 ? eq / +inp.bookEquity : NaN }; };
+    return { atValue: mk(out.opAssets, out.equityCommon), atPrice: mk(mktEV, mktEquity), netIncome: ni, eps: ni / +inp.shares };
+  }
+
   return { exampleInputs: exampleInputs, appleInputs: appleInputs, runDCF: runDCF, runMonteCarlo: runMonteCarlo,
            mcDefaults: mcDefaults, corrPresets: corrPresets, cholesky: cholesky, optionValue: optionValue,
-           rdConverter: rdConverter, normCdf: normCdf, sensitivity: sensitivity, percentileExc: percentileExc, mulberry32: mulberry32 };
+           rdConverter: rdConverter, normCdf: normCdf, sensitivity: sensitivity, percentileExc: percentileExc, mulberry32: mulberry32,
+           solveFor: solveFor, impliedMultiples: impliedMultiples };
 });

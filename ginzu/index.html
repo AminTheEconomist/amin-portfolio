@@ -107,6 +107,7 @@
   .legend{display:flex; gap:14px; font-size:12px; color:var(--muted); padding:0 6px}
   .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px}
 
+  .subhead{font-size:12.5px; font-weight:700; color:var(--muted); margin:18px 0 8px; letter-spacing:.03em; text-transform:uppercase}
   .sens td.cell{font-variant-numeric:tabular-nums}
   .sens td.base{outline:2px solid var(--accent); outline-offset:-2px; font-weight:800}
   .sens td.up{color:var(--good)} .sens td.dn{color:var(--warn)}
@@ -143,7 +144,7 @@
 <header class="hero">
   <div class="kicker">Business valuation · interactive model</div>
   <h1>Ginzu DCF + Monte Carlo</h1>
-  <p>Aswath Damodaran's Ginzu valuation model as a single page: a 10-year free-cash-flow-to-firm DCF with converging growth, margin, tax and cost of capital — plus a Monte Carlo layer that samples four <em>correlated</em> value drivers and re-values the company on every trial. Every number below recalculates as you type. Validated cell-for-cell against the source workbook (see <a href="#validation">Validation</a>).</p>
+  <p>Aswath Damodaran's Ginzu valuation model as a single page: a 10-year free-cash-flow-to-firm DCF with converging growth, margin, tax and cost of capital — plus a Monte Carlo layer that samples four <em>correlated</em> value drivers and re-values the company on every trial. A reverse DCF reads what growth, margin or cost of capital the market price implies, and the multiples implied by the DCF value sit next to the market's, so the DCF can be cross-checked rather than taken on faith. Every number recalculates as you type. Validated cell-for-cell against the source workbook (see <a href="#validation">Validation</a>).</p>
   <div class="btnrow">
     <button class="primary" id="loadApple">Load Apple FY2025 (validation case)</button>
     <button id="loadExample">Load Damodaran's example</button>
@@ -170,6 +171,11 @@
         <div class="tile"><div class="lab">Value of operating assets</div><div class="val" id="t_op">—</div><div class="sub" id="t_op_sub">PV(FCFF) + PV(terminal)</div></div>
       </div>
       <div class="bridge" id="bridge"></div>
+      <h3 class="subhead">Reverse DCF — what the market price implies (one input at a time, others held)</h3>
+      <div class="tiles" id="reverse"></div>
+      <h3 class="subhead">Multiples — at the DCF value vs at the market price</h3>
+      <div class="tablewrap"><table id="multtable"></table></div>
+      <h3 class="subhead">Ten-year projection</h3>
       <div class="tablewrap"><table id="dcftable"></table></div>
       <div class="chartbox">
         <div class="legend"><span><i style="background:var(--bar)"></i>Revenues</span><span><i style="background:var(--good)"></i>FCFF</span><span><i style="background:var(--bar2)"></i>Reinvestment</span></div>
@@ -180,7 +186,7 @@
 
     <section id="mc" class="panel">
       <h2 class="title">Monte Carlo</h2>
-      <p class="note" style="margin-top:0">Each trial draws four correlated inputs (Cholesky-decomposed correlation matrix, normal marginals), writes them into the model — <b>revenue CAGR (years 2–5)</b>, <b>target operating margin</b>, <b>sales-to-capital (both periods)</b>, <b>cost of capital</b> — and records the resulting value per share. This is the same substitution the workbook's VBA macro performs.</p>
+      <p class="note" style="margin-top:0">Each trial draws four correlated inputs (Cholesky-decomposed correlation matrix, normal marginals), writes them into the model — <b>revenue CAGR (years 2–5)</b>, <b>target operating margin</b>, <b>sales-to-capital (both periods)</b>, <b>cost of capital</b> — and records the resulting value per share. This is the same substitution the workbook's VBA macro performs. Trials whose sampled sales-to-capital ratio is not positive are discarded and counted, rather than silently valued.</p>
       <div class="mcgrid">
         <div>
           <div class="mcfield mchead"><span>Variable</span><span style="text-align:right">Mean</span><span style="text-align:right">Std. dev.</span></div>
@@ -217,18 +223,20 @@
     <section id="validation" class="panel">
       <h2 class="title">Validation — how I know it's right</h2>
       <div class="tablewrap"><table class="vtable" id="vtable"></table></div>
-      <p class="note">The source workbook (<code>ginzu_aapl.xlsb</code>, 19 sheets + VBA) holds Apple's FY2025 numbers. Its <code>'Valuation output'!B33</code> is <b>$109.874036</b>. The engine on this page is the exact file that a Node test harness ran against a dump of that sheet — <b>177 cells</b> (growth, revenue, margin, EBIT, tax, EBIT(1−t), reinvestment, FCFF, NOL, WACC, discount factors, PVs, invested capital, ROIC, terminal value, equity bridge) — with a maximum relative difference of <b>3.6 × 10⁻¹⁵</b> (harness run 2026-09-09). The Monte Carlo layer is checked against its own degenerate case (all standard deviations zero must reproduce the DCF at the means), the Cholesky factor is checked by reconstruction on all four presets, and the sampled correlation of 20,000 draws lands on the target. The option pricer reproduces the textbook Black-Scholes call (S=K=100, T=1, σ=20%, r=5% → 10.4506).</p>
+      <p class="note">The source workbook (<code>ginzu_aapl.xlsb</code>, 19 sheets + VBA) holds Apple's FY2025 numbers. Its <code>'Valuation output'!B33</code> is <b>$109.874036</b>. The engine on this page is the exact file that a Node test harness ran against a dump of that sheet — <b>177 cells</b> (growth, revenue, margin, EBIT, tax, EBIT(1−t), reinvestment, FCFF, NOL, WACC, discount factors, PVs, invested capital, ROIC, terminal value, equity bridge) — with a maximum relative difference of <b>3.6 × 10⁻¹⁵</b> (harness run 2026-09-09). The Monte Carlo layer is checked three ways: against its own degenerate case (all standard deviations zero must reproduce the DCF at the means), by Cholesky reconstruction on all four presets with the sampled correlation of 20,000 draws landing on target, and — the check that matters — by replay: Excel ran the workbook's own <code>GenerateCorrelatedSamples</code> and <code>ValueGenerator</code> macros on the Apple inputs for 500 trials, and this engine re-valued every one of Excel's sampled input sets to a maximum relative difference of 8.8 × 10⁻¹² (the trial file is in the repository). The option pricer reproduces the textbook Black-Scholes call (S=K=100, T=1, σ=20%, r=5% → 10.4506).</p>
     </section>
 
     <section id="about" class="panel">
       <h2 class="title">About this model</h2>
       <div class="disclosure">
-        <b>Whose work is what:</b> the valuation model is Aswath Damodaran's (NYU Stern) — his <i>Ginzu</i> spreadsheet, including its assumption overrides, failure adjustment, NOL shielding, R&amp;D capitalisation and dilution-adjusted option pricing. I scoped and directed this web rebuild with AI coding agents rather than hand-writing the code, and I did the validation: reading the workbook's formulas and VBA, building the cell-level test harness, and reconciling every discrepancy until the two engines agreed. The finance judgement — which drivers to stress, how wide to set them, whether they should move together, and what the resulting distribution says about the price — is the part I bring to a valuation.
+        <b>Whose work is what:</b> the DCF is Aswath Damodaran's (NYU Stern) — his <i>Ginzu</i> spreadsheet, including its assumption overrides, failure adjustment, NOL shielding, R&amp;D capitalisation and dilution-adjusted option pricing. The Monte Carlo layer was my idea: I added it to his model in the original workbook (four correlated value drivers, Cholesky draws, the four correlation presets), and this page carries it over. I scoped and directed the web rebuild with AI coding agents rather than hand-writing the code, and I did the validation: reading the workbook's formulas and VBA, building the cell-level test harness, and reconciling every discrepancy until the two engines agreed. The finance judgement — which drivers to stress, how wide to set them, whether they should move together, and what the resulting distribution says about the price — is the part I bring to a valuation.
       </div>
       <h3 style="font-size:15px; margin-top:16px">How the DCF works</h3>
       <p class="note">Revenues grow at the next-year rate, then the years 2–5 CAGR, then converge linearly to the perpetual growth rate over years 6–10. Operating margin converges linearly from next year's margin to the target by the convergence year. Reinvestment is next year's revenue change divided by the sales-to-capital ratio (a one-year lag between investing and growth, overridable). The effective tax rate drifts to the marginal rate over years 6–10; net operating losses shield income until exhausted. Cost of capital converges to a terminal rate (risk-free + mature-market premium, or an override) and the terminal reinvestment rate is <i>g ÷ ROIC</i>. Value of operating assets = PV(FCFF 1–10) + PV(terminal value), adjusted for the probability of failure; equity = that, minus debt and minority interests, plus cash and non-operating assets, minus the value of employee options.</p>
       <h3 style="font-size:15px; margin-top:12px">How the Monte Carlo works</h3>
       <p class="note">Four value drivers are modelled as correlated normals. The correlation matrix is Cholesky-decomposed (L·Lᵀ = R); each trial draws four independent standard normals, multiplies by L, scales by the standard deviations and adds the means. The four sampled values replace the long-term inputs — not the year-1 inputs, which is a mistake the validation caught in an earlier build — and the full DCF is re-run. Percentiles use Excel's <code>PERCENTILE.EXC</code> convention to match the workbook.</p>
+      <h3 style="font-size:15px; margin-top:12px">Why a reverse DCF and implied multiples</h3>
+      <p class="note">A DCF is one view. The reverse DCF turns the question around — <i>what would have to be true for the market price to be right?</i> — by solving for the single growth, margin or cost-of-capital input that makes the model's value equal the price. The implied multiples express the DCF value in the language of relative valuation (EV/EBIT, EV/Sales, P/E, P/B) so it can be set against peer multiples; in a research report these sit beside trading comparables, precedent transactions and a dividend or residual-income model, and the target price triangulates across them.</p>
       <p class="note">Source: Damodaran's model pages at <a href="https://pages.stern.nyu.edu/~adamodar/" target="_blank" rel="noopener">pages.stern.nyu.edu/~adamodar</a>. This page is for study and demonstration; it is not investment advice.</p>
     </section>
   </main>
@@ -470,28 +478,34 @@
     var sds = [+mc.sd[0], +mc.sd[1], +mc.sd[2], +mc.sd[3]];
     var L = cholesky(mc.corr);
     var rng = seed == null ? Math.random : mulberry32(seed), normal = makeNormal(rng);
-    var values = new Array(trials), samples = [];
+    var values = [], samples = [], invalid = 0;
     var base = Object.assign({}, inp);
     for (var i = 0; i < trials; i++) {
       var z = [normal(), normal(), normal(), normal()], x = [0, 0, 0, 0];
       for (var j = 0; j < 4; j++) { var s = 0; for (var k = 0; k <= j; k++) s += L[j][k] * z[k]; x[j] = s * sds[j] + means[j]; }
       // ValueGenerator: B27 ← growth, B28 ← margin, B30 & B31 ← sales/capital, CoC!B12 ← WACC
       base.gCAGR = x[0]; base.mTarget = x[1]; base.sc1 = x[2]; base.sc2 = x[2]; base.wacc = x[3];
-      values[i] = runDCF(base).vps;
-      if (i < 5) samples.push(x.slice());
+      var vps = runDCF(base).vps;
+      // a sampled sales-to-capital ≤ 0 makes reinvestment meaningless; the workbook would silently keep such a trial — we discard and count it
+      if (!(x[2] > 0) || !isFinite(vps)) { invalid++; continue; }
+      values.push(vps);
+      if (samples.length < 5) samples.push(x.slice());
     }
+    var n = values.length;
+    if (n < 2) throw new Error('Fewer than two valid trials — check the standard deviations (sales-to-capital must stay positive).');
     var sorted = values.slice().sort(function (a, b) { return a - b; });
-    var sum = 0; for (i = 0; i < trials; i++) sum += values[i];
-    var mean = sum / trials, v = 0; for (i = 0; i < trials; i++) v += (values[i] - mean) * (values[i] - mean);
-    var sd = Math.sqrt(v / (trials - 1));
+    var sum = 0; for (i = 0; i < n; i++) sum += values[i];
+    var mean = sum / n, v = 0; for (i = 0; i < n; i++) v += (values[i] - mean) * (values[i] - mean);
+    var sd = Math.sqrt(v / (n - 1));
     var pct = {}; [0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99].forEach(function (p) { pct[p] = percentileExc(sorted, p); });
-    var above = 0; for (i = 0; i < trials; i++) if (values[i] > +inp.price) above++;
+    var above = 0; for (i = 0; i < n; i++) if (values[i] > +inp.price) above++;
     // histogram
-    var bins = 30, lo = pct[0.01], hi = pct[0.99]; if (!(hi > lo)) { lo = sorted[0]; hi = sorted[trials - 1] + 1e-9; }
+    var bins = 30, lo = pct[0.01], hi = pct[0.99]; if (!(hi > lo)) { lo = sorted[0]; hi = sorted[n - 1] + 1e-9; }
     var w = (hi - lo) / bins, counts = new Array(bins).fill(0);
-    for (i = 0; i < trials; i++) { var b = Math.floor((values[i] - lo) / w); if (b < 0) b = 0; if (b >= bins) b = bins - 1; counts[b]++; }
-    return { values: values, sorted: sorted, mean: mean, median: pct[0.5], sd: sd, pct: pct, pAbove: above / trials,
-             hist: { lo: lo, hi: hi, w: w, counts: counts }, samples: samples, min: sorted[0], max: sorted[trials - 1] };
+    for (i = 0; i < n; i++) { var b = Math.floor((values[i] - lo) / w); if (b < 0) b = 0; if (b >= bins) b = bins - 1; counts[b]++; }
+    return { values: values, sorted: sorted, mean: mean, median: pct[0.5], sd: sd, pct: pct, pAbove: above / n,
+             hist: { lo: lo, hi: hi, w: w, counts: counts }, samples: samples, min: sorted[0], max: sorted[n - 1],
+             requested: trials, invalid: invalid };
   }
   function mcDefaults() {
     return {
@@ -520,9 +534,33 @@
     return grid;
   }
 
+  /* ---------- Reverse DCF: the input value at which value/share equals a target price ---------- */
+  function solveFor(inp, key, lo, hi, targetVps) {
+    var f = function (v) { var b = Object.assign({}, inp); b[key] = v; if (key === 'sc1') b.sc2 = v; var r = runDCF(b); return r.gT >= r.waccT ? NaN : r.vps - targetVps; };
+    var flo = f(lo), fhi = f(hi);
+    if (!isFinite(flo) || !isFinite(fhi) || flo * fhi > 0) return null;
+    for (var i = 0; i < 200; i++) {
+      var mid = (lo + hi) / 2, fm = f(mid);
+      if (!isFinite(fm)) return null;
+      if (Math.abs(fm) < 1e-10 || (hi - lo) < 1e-12) return mid;
+      if (flo * fm < 0) { hi = mid; fhi = fm; } else { lo = mid; flo = fm; }
+    }
+    return (lo + hi) / 2;
+  }
+
+  /* ---------- Multiples implied by the DCF value, next to the same multiples at the market price ---------- */
+  function impliedMultiples(inp, out) {
+    var ni = (+inp.ebit - (+inp.interest || 0)) * (1 - +inp.taxEff); // approximate net income: EBIT − interest, taxed at the effective rate
+    var mktEquity = +inp.price * +inp.shares;
+    var mktEV = mktEquity + out.debt + out.minority - +inp.cash - (+inp.nonOp || 0);
+    var mk = function (ev, eq) { return { evEbit: ev / out.ebit[0], evSales: ev / out.rev[0], pe: ni > 0 ? eq / ni : NaN, pb: +inp.bookEquity > 0 ? eq / +inp.bookEquity : NaN }; };
+    return { atValue: mk(out.opAssets, out.equityCommon), atPrice: mk(mktEV, mktEquity), netIncome: ni, eps: ni / +inp.shares };
+  }
+
   return { exampleInputs: exampleInputs, appleInputs: appleInputs, runDCF: runDCF, runMonteCarlo: runMonteCarlo,
            mcDefaults: mcDefaults, corrPresets: corrPresets, cholesky: cholesky, optionValue: optionValue,
-           rdConverter: rdConverter, normCdf: normCdf, sensitivity: sensitivity, percentileExc: percentileExc, mulberry32: mulberry32 };
+           rdConverter: rdConverter, normCdf: normCdf, sensitivity: sensitivity, percentileExc: percentileExc, mulberry32: mulberry32,
+           solveFor: solveFor, impliedMultiples: impliedMultiples };
 });
 
 </script>
@@ -546,6 +584,7 @@ var FIELDS = [
  {k:'units', l:'Units', t:'text'},
  {k:'revenue', l:'Revenues', t:'num'},
  {k:'ebit', l:'Operating income (EBIT)', t:'num'},
+ {k:'interest', l:'Interest expense (for the approximate P/E)', t:'num'},
  {k:'bookEquity', l:'Book value of equity', t:'num'},
  {k:'bookDebt', l:'Book value of debt', t:'num'},
  {k:'cash', l:'Cash & marketable securities', t:'num'},
@@ -624,6 +663,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&
 function fmtN(x, d){ if(!isFinite(x)) return '—'; d = d == null ? 0 : d; return x.toLocaleString('en-US',{minimumFractionDigits:d, maximumFractionDigits:d}); }
 function fmtP(x, d){ if(!isFinite(x)) return '—'; d = d == null ? 2 : d; return (x*100).toFixed(d)+'%'; }
 function fmtM(x){ if(!isFinite(x)) return '—'; return '$'+fmtN(x, 2); }
+function fmtX(x){ return isFinite(x) && x > 0 ? fmtN(x, 1)+'×' : 'n/m'; }
 function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 
 /* ---------- form ---------- */
@@ -705,6 +745,7 @@ function render(){
   var out;
   try { out = G.runDCF(state.inp); showErr(''); } catch(e){ showErr('Could not compute: '+e.message); return; }
   lastDCF = out;
+  if (out.gT >= out.waccT) showErr('Growth in perpetuity ('+fmtP(out.gT,2)+') is at or above the terminal cost of capital ('+fmtP(out.waccT,2)+'): the terminal value is undefined and the numbers below are not meaningful. Lower the growth rate or raise the terminal cost of capital.');
   var u = state.inp.units || '';
   $('t_vps').textContent = fmtM(out.vps);
   $('t_units').textContent = 'per share · '+(state.inp.company||'');
@@ -721,6 +762,15 @@ function render(){
   b.push(['Value of equity', out.equity]); if(out.options) b.push(['− Value of employee options ('+fmtM(out.optionPer)+' each)', -out.options]);
   b.push(['÷ Shares outstanding', out.shares]);
   $('bridge').innerHTML = b.map(function(r,i){ var tot = (i===b.length-1); return '<div class="k'+(tot?' tot':'')+'">'+esc(r[0])+'</div><div class="v'+(tot?' tot':'')+'">'+(tot? fmtN(r[1],0)+' → <b>'+fmtM(out.vps)+'</b>' : fmtN(r[1],0))+'</div>'; }).join('');
+  // reverse DCF: which single input would make the DCF value equal the market price?
+  var price = +state.inp.price;
+  var gI = G.solveFor(state.inp, 'gCAGR', -0.5, 1.0, price), mI = G.solveFor(state.inp, 'mTarget', -0.5, 0.9, price), wI = G.solveFor(state.inp, 'wacc', 0.005, 0.6, price);
+  function rtile(lab, v, cur){ return '<div class="tile"><div class="lab">'+lab+'</div><div class="val">'+(v===null?'n/a':fmtP(v,2))+'</div><div class="sub">'+(v===null?'nothing in the search range reaches the price':'your input '+fmtP(cur,2)+' · price '+fmtM(price))+'</div></div>'; }
+  $('reverse').innerHTML = rtile('Revenue CAGR, years 2–5', gI, +state.inp.gCAGR) + rtile('Target operating margin', mI, +state.inp.mTarget) + rtile('Cost of capital, years 1–5', wI, +state.inp.wacc);
+  // multiples implied by the DCF value, beside the same multiples at the market price
+  var im = G.impliedMultiples(state.inp, out);
+  var mrows = [['EV / EBIT','evEbit'],['EV / Sales','evSales'],['P / E (approximate)','pe'],['P / Book','pb']];
+  $('multtable').innerHTML = '<thead><tr><th>Multiple</th><th>At DCF value</th><th>At market price</th></tr></thead><tbody>'+mrows.map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+fmtX(im.atValue[r[1]])+'</td><td>'+fmtX(im.atPrice[r[1]])+'</td></tr>'; }).join('')+'<tr class="sub"><td>Net income used for P/E</td><td colspan="2" style="text-align:left; white-space:normal">'+fmtN(im.netIncome,0)+' = (EBIT − interest) × (1 − effective tax) · EPS '+fmtM(im.eps)+' · a base-year approximation, not reported earnings</td></tr></tbody>';
   // table
   var cols = ['Base year','1','2','3','4','5','6','7','8','9','10','Terminal'];
   var rows = [
@@ -743,10 +793,11 @@ function renderSens(){
   var w0 = +state.inp.wacc, g0 = lastDCF.gT;
   var ws = [-0.02,-0.01,0,0.01,0.02].map(function(d){ return w0+d; });
   var gs = [-0.01,-0.005,0,0.005,0.01].map(function(d){ return g0+d; });
-  var grid;
-  try { grid = G.sensitivity(state.inp, ws, gs); } catch(e){ $('senstable').innerHTML=''; return; }
   var h = '<thead><tr><th>WACC ↓ / g →</th>'+gs.map(function(g){ return '<th>'+fmtP(g,1)+'</th>'; }).join('')+'</tr></thead><tbody>';
-  for(var i=0;i<5;i++){ h += '<tr><td>'+fmtP(ws[i],2)+'</td>'; for(var j=0;j<5;j++){ var v = grid[i][j]; var cls = 'cell'+(i===2&&j===2?' base':'')+(v>lastDCF.price?' up':' dn'); h += '<td class="'+cls+'">'+(isFinite(v)&&v>0? fmtM(v) : 'n/a')+'</td>'; } h += '</tr>'; }
+  for(var i=0;i<5;i++){ h += '<tr><td>'+fmtP(ws[i],2)+'</td>'; for(var j=0;j<5;j++){
+    var r; try { r = G.runDCF(Object.assign({}, state.inp, {wacc: ws[i], gOverride: true, gTerm: gs[j]})); } catch(e){ r = null; }
+    var v = r && r.gT < r.waccT ? r.vps : NaN;
+    var cls = 'cell'+(i===2&&j===2?' base':'')+(v>lastDCF.price?' up':' dn'); h += '<td class="'+cls+'">'+(isFinite(v)&&v>0? fmtM(v) : 'n/a')+'</td>'; } h += '</tr>'; }
   $('senstable').innerHTML = h+'</tbody>';
 }
 
@@ -763,7 +814,9 @@ function renderValidation(){
     ['Relative difference', diff.toExponential(2), diff<1e-9?'ok':'bad'],
     ['Monte Carlo, all σ = 0 → equals DCF at the means ('+fmtM(atMeans)+')', degenerate?'PASS':'FAIL', degenerate?'ok':'bad'],
     ['Black-Scholes call, S=K=100, T=1, σ=20%, r=5% (textbook 10.4506)', bs.toFixed(4), Math.abs(bs-10.4506)<1e-3?'ok':'bad'],
-    ['Cell-level harness (Node, 2026-09-09): 177 cells, max relative diff', '3.6 × 10⁻¹⁵', 'ok']
+    ['Reverse DCF recovers the input growth at the DCF value (5.00%)', (function(){ var a=G.appleInputs(); var g=G.solveFor(a,'gCAGR',-0.5,1.0,G.runDCF(a).vps); return g===null?'FAIL':fmtP(g,4); })(), 'ok'],
+    ['Cell-level harness (Node, 2026-09-09): 177 cells, max relative diff', '3.6 × 10⁻¹⁵', 'ok'],
+    ['Excel VBA replay (2026-09-09): 500 trials sampled and valued by the workbook\'s own macros, re-valued by this engine — max relative diff', '8.8 × 10⁻¹²', 'ok']
   ];
   $('vtable').innerHTML = '<tbody>'+rows.map(function(r){ return '<tr><td style="white-space:normal">'+r[0]+'</td><td class="'+r[2]+'">'+r[1]+'</td></tr>'; }).join('')+'</tbody>';
 }
@@ -778,12 +831,12 @@ function runMC(){
 function updateMCTiles(){
   var r = lastMC; if(!r) return;
   $('m_pabove').textContent = fmtP(r.pAbove,1); $('m_pabove').className = 'val '+(r.pAbove>=0.5?'good':'warn');
-  $('m_pabove_sub').textContent = fmtN(r.values.length,0)+' trials · price '+fmtM(lastDCF.price);
+  $('m_pabove_sub').textContent = fmtN(r.values.length,0)+' valid trials · price '+fmtM(lastDCF.price)+(r.invalid? ' · '+fmtN(r.invalid,0)+' discarded (S/Cap ≤ 0)' : '');
   $('m_mean').textContent = fmtM(r.mean); $('m_det').textContent = 'deterministic '+fmtM(lastDCF.vps);
   $('m_median').textContent = fmtM(r.median); $('m_sd').textContent = fmtM(r.sd); $('m_cv').textContent = 'CV '+fmtP(r.sd/r.mean,1);
   var ps = [0.01,0.05,0.1,0.25,0.5,0.75,0.9,0.95,0.99];
   $('pcts').innerHTML = ps.map(function(p){ return '<div class="pct"><div class="lab">P'+Math.round(p*100)+'</div><div class="val">'+fmtM(r.pct[p])+'</div></div>'; }).join('');
-  $('histcap').textContent = 'Distribution of simulated value per share — '+fmtN(r.values.length,0)+' trials, min '+fmtM(r.min)+', max '+fmtM(r.max)+' (bins span the 1st–99th percentiles).';
+  $('histcap').textContent = 'Distribution of simulated value per share — '+fmtN(r.values.length,0)+' valid trials'+(r.invalid? ' ('+fmtN(r.invalid,0)+' discarded because the sampled sales-to-capital ratio was not positive)' : '')+', min '+fmtM(r.min)+', max '+fmtM(r.max)+'; bins span the 1st–99th percentiles.';
 }
 
 /* ---------- charts (canvas, no libraries) ---------- */

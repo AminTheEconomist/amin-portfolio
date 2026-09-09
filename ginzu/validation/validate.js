@@ -57,5 +57,23 @@ console.log(`MC Apple 20k trials: mean ${r1.mean.toFixed(2)}  median ${r1.median
 { const rd = G.rdConverter({ rdYears: 3, rdCurrent: 300, rdPast: [300, 300, 300] });
   const ok = Math.abs(rd.asset - 600) < 1e-9 && Math.abs(rd.amortization - 300) < 1e-9 && Math.abs(rd.ebitAdj) < 1e-9;
   console.log(`R&D converter N=3 flat 300: asset ${rd.asset} amort ${rd.amortization} adj ${rd.ebitAdj} → ${ok ? 'PASS' : 'FAIL'}`); if (!ok) fails++; }
+// Reverse DCF: solving for the growth that reproduces the DCF value must return the input growth (5%)
+{ const a = G.appleInputs(); const target = G.runDCF(a).vps; const g = G.solveFor(a, 'gCAGR', -0.5, 1.0, target); const m = G.solveFor(a, 'mTarget', -0.5, 0.9, target); const w = G.solveFor(a, 'wacc', 0.005, 0.6, target);
+  const ok = g !== null && Math.abs(g - a.gCAGR) < 1e-7 && m !== null && Math.abs(m - a.mTarget) < 1e-7 && w !== null && Math.abs(w - a.wacc) < 1e-7;
+  console.log(`Reverse DCF recovers inputs at the DCF value: g ${g === null ? 'null' : (g*100).toFixed(5)}%  margin ${m === null ? 'null' : (m*100).toFixed(5)}%  wacc ${w === null ? 'null' : (w*100).toFixed(5)}% → ${ok ? 'PASS' : 'FAIL'}`); if (!ok) fails++; }
+// Invalid-trial guard: an absurd S/Cap standard deviation must produce discarded trials, never NaN statistics
+{ const mc = G.mcDefaults(); mc.sd = [0, 0, 5, 0]; const r = G.runMonteCarlo(G.appleInputs(), mc, 2000, 7);
+  const ok = r.invalid > 0 && r.values.length + r.invalid === 2000 && isFinite(r.mean) && isFinite(r.sd);
+  console.log(`Invalid-trial guard: ${r.invalid} of 2000 trials discarded (S/Cap ≤ 0), stats finite → ${ok ? 'PASS' : 'FAIL'}`); if (!ok) fails++; }
+// Implied multiples: at the market price the P/B must equal market cap / book equity exactly
+{ const a = G.appleInputs(); const o = G.runDCF(a); const im = G.impliedMultiples(a, o);
+  const ok = Math.abs(im.atPrice.pb - (a.price * a.shares) / a.bookEquity) < 1e-12 && Math.abs(im.atValue.pb - o.equityCommon / a.bookEquity) < 1e-12;
+  console.log(`Implied multiples: P/B at price ${im.atPrice.pb.toFixed(2)}×, at DCF value ${im.atValue.pb.toFixed(2)}×; EV/EBIT at price ${im.atPrice.evEbit.toFixed(2)}×, at value ${im.atValue.evEbit.toFixed(2)}× → ${ok ? 'PASS' : 'FAIL'}`); if (!ok) fails++; }
+// Excel VBA replay: trials sampled AND valued by the workbook's own macros (Excel for Mac, 2026-09-09), re-valued by the engine
+{ const fs = require('fs'), path = require('path');
+  const csv = fs.readFileSync(path.join(__dirname, 'vba_replay_apple.csv'), 'utf8').trim().split('\n').slice(1).map(l => l.split(',').map(Number));
+  let maxRel = 0; const a = G.appleInputs();
+  for (const [g, m, sc, w, excel] of csv) { const v = G.runDCF(Object.assign({}, a, { gCAGR: g, mTarget: m, sc1: sc, sc2: sc, wacc: w })).vps; maxRel = Math.max(maxRel, Math.abs(v - excel) / Math.abs(excel)); }
+  console.log(`Excel VBA replay: ${csv.length} trials from the workbook's own macros re-valued → max rel diff ${maxRel.toExponential(2)} → ${maxRel < 1e-9 ? 'PASS' : 'FAIL'}`); if (maxRel >= 1e-9) fails++; }
 console.log(fails === 0 ? '\nALL CHECKS PASSED' : `\n${fails} FAILURE(S)`);
 process.exit(fails ? 1 : 0);
