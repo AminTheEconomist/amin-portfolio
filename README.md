@@ -4,6 +4,7 @@ A single-page portfolio site for finance, risk, valuations, research, and quanti
 
 - **Live:** deployed on Vercel (link in repo settings / About)
 - **Source:** one self-contained `index.html` — no build step, no dependencies. Open it directly or serve it with any static host.
+- **`/ginzu/`** — Ginzu DCF + Monte Carlo, an interactive valuation model (single file, no dependencies). `ginzu/src/` holds the engine + page template and `ginzu/src/build.py` inlines them; `ginzu/validation/` is the cell-level test harness against Damodaran's workbook.
 
 ## About
 

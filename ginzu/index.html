@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ginzu DCF + Monte Carlo — Amin Behrad</title>
+<meta name="description" content="Aswath Damodaran's Ginzu valuation model as a single interactive page — 10-year FCFF DCF plus a correlated Monte Carlo layer — validated cell-for-cell against the source workbook." />
+<meta name="author" content="Amin Behrad" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f5f8b'/%3E%3Ctext x='32' y='44' font-family='Helvetica,Arial,sans-serif' font-size='34' font-weight='700' fill='white' text-anchor='middle'%3EAB%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#f7f8fa; --panel:#ffffff; --ink:#16202b; --muted:#5b6875;
+    --line:#e4e8ee; --accent:#1f5f8b; --accent-soft:#e8f1f8; --chip:#eef1f5;
+    --good:#1d7a4b; --warn:#b4541a; --bar:#3b82c4; --bar2:#9cc3e6;
+    --shadow:0 1px 2px rgba(16,32,45,.04),0 8px 24px rgba(16,32,45,.06);
+    --max:1180px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0e1319; --panel:#151c25; --ink:#e7edf3; --muted:#9aa7b4;
+      --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530;
+      --good:#4cc38a; --warn:#f0a35e; --bar:#5aa9e0; --bar2:#2f5a7d;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1319; --panel:#151c25; --ink:#e7edf3; --muted:#9aa7b4;
+    --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530;
+    --good:#4cc38a; --warn:#f0a35e; --bar:#5aa9e0; --bar2:#2f5a7d;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%; background:var(--bg)}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased}
+  a{color:var(--accent); text-decoration:none} a:hover{text-decoration:underline}
+  a,code{overflow-wrap:anywhere}
+  .wrap{max-width:var(--max); margin:0 auto; padding:0 18px}
+  h1,h2,h3{line-height:1.25; margin:0}
+  .nav{position:sticky; top:0; z-index:8; backdrop-filter:saturate(180%) blur(10px);
+    background:color-mix(in srgb,var(--bg) 84%, transparent); border-bottom:1px solid var(--line)}
+  .nav .wrap{display:flex; align-items:center; gap:8px; height:50px; overflow-x:auto; min-width:0}
+  .nav a{font-size:13px; color:var(--muted); padding:5px 9px; border-radius:8px; white-space:nowrap}
+  .nav a:hover{color:var(--ink); background:var(--chip); text-decoration:none}
+  .nav .brand{font-weight:800; color:var(--ink); margin-right:auto}
+  .nav button{white-space:nowrap}
+  header.hero{padding:28px 0 12px}
+  header.hero h1{font-size:clamp(22px,3.4vw,30px); font-weight:800; letter-spacing:-.01em}
+  header.hero p{color:var(--muted); margin:8px 0 0; max-width:820px}
+  .kicker{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); font-weight:700}
+  h2.title{font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:14px}
+  section.section{padding:22px 0; border-top:1px solid var(--line); scroll-margin-top:60px}
+
+  .layout{display:grid; grid-template-columns:minmax(300px,380px) minmax(0,1fr); gap:18px; align-items:start}
+  @media (max-width:860px){ .layout{grid-template-columns:minmax(0,1fr)} }
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:16px 18px; min-width:0}
+  .panel + .panel{margin-top:14px}
+  details.group{border-top:1px solid var(--line); padding:6px 0}
+  details.group:first-of-type{border-top:0}
+  details.group summary{cursor:pointer; font-weight:700; font-size:13.5px; padding:6px 0; list-style:none; display:flex; align-items:center; gap:8px; color:var(--ink)}
+  details.group summary::-webkit-details-marker{display:none}
+  details.group summary::before{content:"▸"; color:var(--accent); font-size:12px; transition:transform .15s}
+  details.group[open] summary::before{transform:rotate(90deg)}
+  .field{display:grid; grid-template-columns:minmax(0,1fr) 118px; gap:8px; align-items:center; padding:4px 0; font-size:13px; color:var(--muted)}
+  .field label{min-width:0}
+  .field input[type=text],.field input[type=number],.field select,.mcfield input,.mcfield select,.corr input,#trials,#seed{
+    width:100%; font:inherit; font-size:13px; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 8px; text-align:right}
+  .field input[type=text]{text-align:left}
+  .field select{text-align:left}
+  .field.pct{position:relative}
+  .field.pct .unit{position:absolute; right:10px; font-size:12px; color:var(--muted); pointer-events:none}
+  .field.pct input{padding-right:22px}
+  .field .sw{justify-self:end}
+  .field.dep{padding-left:14px}
+  .field.off{display:none}
+  .switch{appearance:none; width:38px; height:22px; border-radius:22px; background:var(--chip); border:1px solid var(--line); position:relative; cursor:pointer; margin:0}
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:var(--muted); transition:left .15s, background .15s}
+  .switch:checked{background:var(--accent); border-color:var(--accent)}
+  .switch:checked::after{left:18px; background:#fff}
+  button{font:inherit; font-size:13px; font-weight:600; color:var(--ink); background:var(--chip); border:1px solid var(--line); border-radius:9px; padding:7px 12px; cursor:pointer}
+  button:hover{filter:brightness(.97)}
+  button.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  .btnrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
+  .tile{background:var(--accent-soft); border:1px solid var(--line); border-radius:12px; padding:12px 14px; min-width:0}
+  .tile .lab{font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:700}
+  .tile .val{font-size:22px; font-weight:800; margin-top:2px; letter-spacing:-.01em}
+  .tile .sub{font-size:12px; color:var(--muted)}
+  .tile.big .val{font-size:30px; color:var(--accent)}
+  .tile .val.good{color:var(--good)} .tile .val.warn{color:var(--warn)}
+
+  .tablewrap{overflow-x:auto; min-width:0; border:1px solid var(--line); border-radius:10px; margin-top:12px}
+  table{border-collapse:collapse; font-size:12.5px; min-width:100%; white-space:nowrap}
+  th,td{padding:5px 9px; text-align:right; border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left; position:sticky; left:0; background:var(--panel); font-weight:600; color:var(--ink); z-index:1}
+  thead th{background:var(--chip); font-weight:700; color:var(--muted); font-size:11.5px; letter-spacing:.03em; text-transform:uppercase}
+  tbody tr:last-child td{border-bottom:0}
+  tr.sub td{color:var(--muted)}
+  tr.hl td{font-weight:700}
+  .bridge{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 14px; font-size:13.5px; margin-top:8px}
+  .bridge .k{color:var(--muted)} .bridge .v{text-align:right; font-variant-numeric:tabular-nums}
+  .bridge .tot{border-top:1px solid var(--line); padding-top:6px; font-weight:800}
+  canvas{width:100%; height:240px; display:block}
+  .chartbox{margin-top:12px; border:1px solid var(--line); border-radius:10px; padding:8px 8px 4px; background:var(--panel); min-width:0}
+  .chartbox .cap{font-size:12px; color:var(--muted); padding:0 6px 4px}
+  .legend{display:flex; gap:14px; font-size:12px; color:var(--muted); padding:0 6px}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px}
+
+  .sens td.cell{font-variant-numeric:tabular-nums}
+  .sens td.base{outline:2px solid var(--accent); outline-offset:-2px; font-weight:800}
+  .sens td.up{color:var(--good)} .sens td.dn{color:var(--warn)}
+
+  .mcgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px}
+  .mcfield{display:grid; grid-template-columns:minmax(0,1fr) 92px 92px; gap:6px; align-items:center; font-size:13px; color:var(--muted); padding:3px 0}
+  .mchead{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:700}
+  .corr{border-collapse:separate; border-spacing:4px; font-size:12px}
+  .corr th{font-weight:700; color:var(--muted); padding:2px 4px; text-align:center; border:0}
+  .corr td{padding:0; border:0}
+  .corr input{width:64px; padding:5px 6px; text-align:center}
+  .corr input:disabled{background:var(--chip); color:var(--muted)}
+  .pcts{display:grid; grid-template-columns:repeat(auto-fit,minmax(78px,1fr)); gap:6px; margin-top:10px}
+  .pct{background:var(--chip); border:1px solid var(--line); border-radius:9px; padding:7px 9px; text-align:center; min-width:0}
+  .pct .lab{font-size:11px; color:var(--muted); font-weight:700} .pct .val{font-size:14.5px; font-weight:700; font-variant-numeric:tabular-nums}
+  .note{font-size:13px; color:var(--muted); margin-top:8px}
+  .disclosure{background:var(--accent-soft); border:1px solid var(--line); border-radius:12px; padding:12px 16px; font-size:14px; color:var(--ink)}
+  .disclosure b{color:var(--accent)}
+  .ok{color:var(--good); font-weight:700} .bad{color:var(--warn); font-weight:700}
+  .vtable td:first-child{position:static}
+  footer{padding:24px 0 36px; color:var(--muted); font-size:13px; border-top:1px solid var(--line); margin-top:20px}
+  .err{background:#fdecec; color:#8a1c1c; border:1px solid #f3c1c1; border-radius:10px; padding:8px 12px; font-size:13px; margin-top:8px; display:none}
+  @media (max-width:520px){ table,th,td{white-space:normal} .field{grid-template-columns:minmax(0,1fr) 104px} }
+  @media print{ html,body{background:#fff} .nav,button{display:none} .panel{box-shadow:none; break-inside:avoid} }
+</style>
+</head>
+<body>
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="../">← Amin Behrad</a>
+  <a href="#dcf">DCF</a><a href="#mc">Monte Carlo</a><a href="#sens">Sensitivity</a><a href="#validation">Validation</a><a href="#about">About</a>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <div class="kicker">Business valuation · interactive model</div>
+  <h1>Ginzu DCF + Monte Carlo</h1>
+  <p>Aswath Damodaran's Ginzu valuation model as a single page: a 10-year free-cash-flow-to-firm DCF with converging growth, margin, tax and cost of capital — plus a Monte Carlo layer that samples four <em>correlated</em> value drivers and re-values the company on every trial. Every number below recalculates as you type. Validated cell-for-cell against the source workbook (see <a href="#validation">Validation</a>).</p>
+  <div class="btnrow">
+    <button class="primary" id="loadApple">Load Apple FY2025 (validation case)</button>
+    <button id="loadExample">Load Damodaran's example</button>
+    <button id="reset">Reset</button>
+  </div>
+  <div class="err" id="err"></div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="panel">
+      <h2 class="title">Inputs</h2>
+      <div id="form"></div>
+    </div>
+  </aside>
+
+  <main>
+    <section id="dcf" class="panel">
+      <h2 class="title">Deterministic DCF</h2>
+      <div class="tiles">
+        <div class="tile big"><div class="lab">Estimated value / share</div><div class="val" id="t_vps">—</div><div class="sub" id="t_units">per share</div></div>
+        <div class="tile"><div class="lab">Current price</div><div class="val" id="t_price">—</div><div class="sub" id="t_pv">price as % of value</div></div>
+        <div class="tile"><div class="lab">Value of equity</div><div class="val" id="t_eq">—</div><div class="sub" id="t_eq_sub">after options</div></div>
+        <div class="tile"><div class="lab">Value of operating assets</div><div class="val" id="t_op">—</div><div class="sub" id="t_op_sub">PV(FCFF) + PV(terminal)</div></div>
+      </div>
+      <div class="bridge" id="bridge"></div>
+      <div class="tablewrap"><table id="dcftable"></table></div>
+      <div class="chartbox">
+        <div class="legend"><span><i style="background:var(--bar)"></i>Revenues</span><span><i style="background:var(--good)"></i>FCFF</span><span><i style="background:var(--bar2)"></i>Reinvestment</span></div>
+        <canvas id="lines" height="240"></canvas>
+        <div class="cap">Ten-year projection plus terminal year (units as entered).</div>
+      </div>
+    </section>
+
+    <section id="mc" class="panel">
+      <h2 class="title">Monte Carlo</h2>
+      <p class="note" style="margin-top:0">Each trial draws four correlated inputs (Cholesky-decomposed correlation matrix, normal marginals), writes them into the model — <b>revenue CAGR (years 2–5)</b>, <b>target operating margin</b>, <b>sales-to-capital (both periods)</b>, <b>cost of capital</b> — and records the resulting value per share. This is the same substitution the workbook's VBA macro performs.</p>
+      <div class="mcgrid">
+        <div>
+          <div class="mcfield mchead"><span>Variable</span><span style="text-align:right">Mean</span><span style="text-align:right">Std. dev.</span></div>
+          <div id="mcvars"></div>
+          <div class="btnrow"><button id="syncMeans">Set means = current inputs</button></div>
+        </div>
+        <div>
+          <div class="mchead" style="margin-bottom:4px">Correlation matrix &nbsp;<select id="corrPreset" style="font:inherit;font-size:12px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);padding:3px 6px"></select></div>
+          <table class="corr" id="corr"></table>
+          <div class="mcfield" style="grid-template-columns:minmax(0,1fr) 92px 92px; margin-top:6px"><span>Trials · seed (blank = random)</span><input id="trials" type="number" min="100" max="200000" step="100" value="5000"><input id="seed" type="number" placeholder="random"></div>
+          <div class="btnrow"><button class="primary" id="run">Run simulation</button></div>
+        </div>
+      </div>
+      <div class="tiles" style="margin-top:14px">
+        <div class="tile big"><div class="lab">P(value &gt; price)</div><div class="val" id="m_pabove">—</div><div class="sub" id="m_pabove_sub">share of trials</div></div>
+        <div class="tile"><div class="lab">Mean</div><div class="val" id="m_mean">—</div><div class="sub" id="m_det">deterministic —</div></div>
+        <div class="tile"><div class="lab">Median</div><div class="val" id="m_median">—</div><div class="sub">50th percentile</div></div>
+        <div class="tile"><div class="lab">Std. dev.</div><div class="val" id="m_sd">—</div><div class="sub" id="m_cv">coefficient of variation</div></div>
+      </div>
+      <div class="pcts" id="pcts"></div>
+      <div class="chartbox">
+        <div class="legend"><span><i style="background:var(--bar)"></i>Value per share, by bin</span><span><i style="background:var(--warn)"></i>Current price</span><span><i style="background:var(--good)"></i>Deterministic value</span></div>
+        <canvas id="hist" height="240"></canvas>
+        <div class="cap" id="histcap">Distribution of simulated value per share (1st–99th percentile range, 30 bins).</div>
+      </div>
+    </section>
+
+    <section id="sens" class="panel">
+      <h2 class="title">Sensitivity — cost of capital × growth in perpetuity</h2>
+      <div class="tablewrap"><table class="sens" id="senstable"></table></div>
+      <p class="note">Rows vary the years 1–5 cost of capital (the terminal cost of capital follows the override if set); columns vary the growth rate in perpetuity. Base case outlined.</p>
+    </section>
+
+    <section id="validation" class="panel">
+      <h2 class="title">Validation — how I know it's right</h2>
+      <div class="tablewrap"><table class="vtable" id="vtable"></table></div>
+      <p class="note">The source workbook (<code>ginzu_aapl.xlsb</code>, 19 sheets + VBA) holds Apple's FY2025 numbers. Its <code>'Valuation output'!B33</code> is <b>$109.874036</b>. The engine on this page is the exact file that a Node test harness ran against a dump of that sheet — <b>177 cells</b> (growth, revenue, margin, EBIT, tax, EBIT(1−t), reinvestment, FCFF, NOL, WACC, discount factors, PVs, invested capital, ROIC, terminal value, equity bridge) — with a maximum relative difference of <b>3.6 × 10⁻¹⁵</b> (harness run 2026-09-09). The Monte Carlo layer is checked against its own degenerate case (all standard deviations zero must reproduce the DCF at the means), the Cholesky factor is checked by reconstruction on all four presets, and the sampled correlation of 20,000 draws lands on the target. The option pricer reproduces the textbook Black-Scholes call (S=K=100, T=1, σ=20%, r=5% → 10.4506).</p>
+    </section>
+
+    <section id="about" class="panel">
+      <h2 class="title">About this model</h2>
+      <div class="disclosure">
+        <b>Whose work is what:</b> the valuation model is Aswath Damodaran's (NYU Stern) — his <i>Ginzu</i> spreadsheet, including its assumption overrides, failure adjustment, NOL shielding, R&amp;D capitalisation and dilution-adjusted option pricing. I scoped and directed this web rebuild with AI coding agents rather than hand-writing the code, and I did the validation: reading the workbook's formulas and VBA, building the cell-level test harness, and reconciling every discrepancy until the two engines agreed. The finance judgement — which drivers to stress, how wide to set them, whether they should move together, and what the resulting distribution says about the price — is the part I bring to a valuation.
+      </div>
+      <h3 style="font-size:15px; margin-top:16px">How the DCF works</h3>
+      <p class="note">Revenues grow at the next-year rate, then the years 2–5 CAGR, then converge linearly to the perpetual growth rate over years 6–10. Operating margin converges linearly from next year's margin to the target by the convergence year. Reinvestment is next year's revenue change divided by the sales-to-capital ratio (a one-year lag between investing and growth, overridable). The effective tax rate drifts to the marginal rate over years 6–10; net operating losses shield income until exhausted. Cost of capital converges to a terminal rate (risk-free + mature-market premium, or an override) and the terminal reinvestment rate is <i>g ÷ ROIC</i>. Value of operating assets = PV(FCFF 1–10) + PV(terminal value), adjusted for the probability of failure; equity = that, minus debt and minority interests, plus cash and non-operating assets, minus the value of employee options.</p>
+      <h3 style="font-size:15px; margin-top:12px">How the Monte Carlo works</h3>
+      <p class="note">Four value drivers are modelled as correlated normals. The correlation matrix is Cholesky-decomposed (L·Lᵀ = R); each trial draws four independent standard normals, multiplies by L, scales by the standard deviations and adds the means. The four sampled values replace the long-term inputs — not the year-1 inputs, which is a mistake the validation caught in an earlier build — and the full DCF is re-run. Percentiles use Excel's <code>PERCENTILE.EXC</code> convention to match the workbook.</p>
+      <p class="note">Source: Damodaran's model pages at <a href="https://pages.stern.nyu.edu/~adamodar/" target="_blank" rel="noopener">pages.stern.nyu.edu/~adamodar</a>. This page is for study and demonstration; it is not investment advice.</p>
+    </section>
+  </main>
+</div>
+
+<footer class="wrap">
+  <div>Amin Behrad — <a href="../">portfolio</a> · <a href="https://github.com/AminTheEconomist/amin-portfolio/tree/main/ginzu" target="_blank" rel="noopener">source</a> · inputs persist in this browser only.</div>
+</footer>
+</div>
+
+<script>
+/* ============================================================================
+   Ginzu DCF + Monte Carlo — calculation engine
+   Mirrors Aswath Damodaran's "Ginzu" workbook cell-for-cell:
+     'Valuation output' rows 2–40, 'Option value' (dilution-adjusted BSM),
+     'R& D converter', and the VBA macros ValueGenerator /
+     GenerateCorrelatedSamples on the 'Monte Carlo' sheet.
+   Pure functions, no DOM. Works in Node (module.exports) and the browser.
+   ============================================================================ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.Ginzu = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  /* ---------- defaults: Damodaran's worked example (Monte Carlo sheet) ---------- */
+  function exampleInputs() {
+    return {
+      company: 'Example Co', units: '$ millions',
+      revenue: 10000, revenuePrev: 0, ebit: 876, interest: 0,
+      bookEquity: 3000, bookDebt: 2000, cash: 500, nonOp: 0, minority: 0,
+      shares: 100, price: 40, taxEff: 0.21, taxMarg: 0.25,
+      g1: 0.0572, m1: 0.0876, gCAGR: 0.0572, mTarget: 0.12, convYear: 5,
+      sc1: 1.7731, sc2: 1.7731, rf: 0.045, wacc: 0.1029, matureERP: 0.045,
+      overrideTermWACC: true, termWACC: 0.08,
+      overrideTermROIC: false, termROIC: 0.08,
+      failureOn: false, failProb: 0, failBasis: 'V', failProceeds: 0.5,
+      lagOverride: false, lag: 1,
+      taxOverride: false,
+      nolOn: false, nol: 0,
+      rfOverride: false, rfAfter: 0.045,
+      gOverride: true, gTerm: 0.025,
+      trappedOn: false, trappedCash: 0, trappedTax: 0,
+      rdOn: false, rdYears: 5, rdCurrent: 0, rdPast: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      optionsOn: false, optN: 0, optStrike: 0, optMaturity: 0, optSigma: 0, optDiv: 0
+    };
+  }
+
+  /* ---------- Apple FY2025 — the validation case from the source workbook ---------- */
+  function appleInputs() {
+    return Object.assign(exampleInputs(), {
+      company: 'Apple Inc.', units: '$ millions',
+      revenue: 416161, ebit: 133050, interest: 3933,
+      bookEquity: 73733, bookDebt: 90678, cash: 35934, nonOp: 0, minority: 0,
+      shares: 14773, price: 230, taxEff: 0.156, taxMarg: 0.25,
+      g1: 0.05, m1: 0.32, gCAGR: 0.05, mTarget: 0.32, convYear: 5,
+      sc1: 5, sc2: 5, rf: 0.045, wacc: 0.0925,
+      overrideTermWACC: true, termWACC: 0.08,
+      overrideTermROIC: true, termROIC: 0.08,
+      gOverride: true, gTerm: 0.025
+    });
+  }
+
+  /* ---------- R&D converter ('R& D converter' sheet) ---------- */
+  function rdConverter(inp) {
+    var N = Math.max(1, Math.min(10, Math.round(inp.rdYears || 0)));
+    var cur = +inp.rdCurrent || 0, asset = cur, amort = 0;
+    for (var k = 1; k <= N; k++) {
+      var e = +(inp.rdPast && inp.rdPast[k - 1]) || 0;
+      asset += e * (N - k) / N;          // unamortized portion, C25:C34
+      amort += e / N;                    // amortization this year, E25:E34
+    }
+    return { asset: asset, amortization: amort, ebitAdj: cur - amort }; // D35, D37, D39
+  }
+
+  /* ---------- Normal CDF (West 2005 / Hart double precision) ---------- */
+  function normCdf(x) {
+    var z = Math.abs(x), c;
+    if (z > 37) c = 0;
+    else {
+      var e = Math.exp(-z * z / 2);
+      if (z < 7.07106781186547) {
+        var n = ((((((3.52624965998911e-02 * z + 0.700383064443688) * z + 6.37396220353165) * z + 33.912866078383) * z + 112.079291497871) * z + 221.213596169931) * z + 220.206867912376);
+        var d = (((((((8.83883476483184e-02 * z + 1.75566716318264) * z + 16.064177579207) * z + 86.7807322029461) * z + 296.564248779674) * z + 637.333633378831) * z + 793.826512519948) * z + 440.413735824752);
+        c = e * n / d;
+      } else {
+        c = e / (z + 1 / (z + 2 / (z + 3 / (z + 4 / (z + 0.65))))) / 2.506628274631;
+      }
+    }
+    return x > 0 ? 1 - c : c;
+  }
+
+  /* ---------- Dilution-adjusted Black-Scholes ('Option value' sheet, iterated) ---------- */
+  function optionValue(inp) {
+    var S = +inp.price, K = +inp.optStrike, T = +inp.optMaturity, sig = +inp.optSigma,
+        q = +inp.optDiv || 0, r = +inp.rf, w = +inp.optN, n = +inp.shares;
+    if (!(w > 0) || !(K > 0) || !(T > 0) || !(sig > 0)) return { perOption: 0, total: 0, d1: NaN, d2: NaN, adjS: S };
+    var V = 0, adjS = S, d1 = 0, d2 = 0;
+    for (var i = 0; i < 500; i++) {
+      adjS = (S * n + V * w) / (n + w);                                   // B17 (circular)
+      d1 = (Math.log(adjS / K) + (r - q + sig * sig / 2) * T) / (sig * Math.sqrt(T));
+      d2 = d1 - sig * Math.sqrt(T);
+      var Vn = Math.exp(-q * T) * adjS * normCdf(d1) - K * Math.exp(-r * T) * normCdf(d2); // B28
+      if (Math.abs(Vn - V) < 1e-12) { V = Vn; break; }
+      V = Vn;
+    }
+    return { perOption: V, total: V * w, d1: d1, d2: d2, adjS: adjS };
+  }
+
+  /* ---------- Deterministic DCF ('Valuation output' sheet) ---------- */
+  function runDCF(inp) {
+    var T = 11; // index 0 = base year, 1..10 = forecast, 11 = terminal year
+    var g = [], rev = [], m = [], ebit = [], tax = [], nol = [], ebitAT = [], sc = [], reinv = [],
+        fcff = [], wacc = [], df = [], pv = [], ic = [], roic = [];
+    var rd = inp.rdOn ? rdConverter(inp) : { asset: 0, amortization: 0, ebitAdj: 0 };
+
+    // terminal growth M2
+    var gT = inp.gOverride ? +inp.gTerm : (inp.rfOverride ? +inp.rfAfter : +inp.rf);
+    // growth path row 2
+    g[1] = +inp.g1; g[2] = +inp.gCAGR; g[3] = g[2]; g[4] = g[2]; g[5] = g[2];
+    for (var k = 1; k <= 5; k++) g[5 + k] = g[5] - ((g[5] - gT) / 5) * k;
+    g[11] = gT;
+    // revenues row 3
+    rev[0] = +inp.revenue;
+    for (var t = 1; t <= T; t++) rev[t] = rev[t - 1] * (1 + g[t]);
+    // EBIT base (B5) with R&D adjustment
+    ebit[0] = +inp.ebit + rd.ebitAdj;
+    // margins row 4
+    var conv = +inp.convYear, mT = +inp.mTarget;
+    m[0] = ebit[0] / rev[0]; m[1] = +inp.m1;
+    for (t = 2; t <= 10; t++) m[t] = t > conv ? mT : mT - ((mT - m[1]) / conv) * (conv - t);
+    m[11] = m[10];
+    for (t = 1; t <= T; t++) ebit[t] = m[t] * rev[t];
+    // tax row 6
+    tax[11] = inp.taxOverride ? +inp.taxEff : +inp.taxMarg;
+    for (t = 0; t <= 5; t++) tax[t] = +inp.taxEff;
+    for (k = 1; k <= 5; k++) tax[5 + k] = tax[5] + ((tax[11] - tax[5]) / 5) * k;
+    // NOL row 10
+    nol[0] = inp.nolOn ? +inp.nol : 0;
+    for (t = 1; t <= T; t++) nol[t] = ebit[t] < 0 ? nol[t - 1] - ebit[t] : (nol[t - 1] > ebit[t] ? nol[t - 1] - ebit[t] : 0);
+    // EBIT(1-t) row 7
+    ebitAT[0] = ebit[0] > 0 ? ebit[0] * (1 - tax[0]) : ebit[0];
+    for (t = 1; t <= 10; t++) ebitAT[t] = ebit[t] > 0 ? (ebit[t] < nol[t - 1] ? ebit[t] : ebit[t] - (ebit[t] - nol[t - 1]) * tax[t]) : ebit[t];
+    ebitAT[11] = ebit[11] * (1 - tax[11]);
+    // sales-to-capital row 38
+    for (t = 1; t <= 4; t++) sc[t] = +inp.sc1;
+    for (t = 5; t <= 10; t++) sc[t] = +inp.sc2;
+    // cost of capital row 12
+    var waccT = inp.overrideTermWACC ? +inp.termWACC : (inp.rfOverride ? +inp.rfAfter + +inp.matureERP : +inp.rf + +inp.matureERP);
+    for (t = 1; t <= 5; t++) wacc[t] = +inp.wacc;
+    for (k = 1; k <= 5; k++) wacc[5 + k] = wacc[5] - ((wacc[5] - waccT) / 5) * k;
+    wacc[11] = waccT;
+    // terminal ROIC M40
+    var roicT = inp.overrideTermROIC ? +inp.termROIC : wacc[10];
+    // reinvestment row 8
+    var lag = inp.lagOverride ? Math.round(+inp.lag) : 1;
+    for (t = 1; t <= 10; t++) {
+      var r;
+      if (!inp.lagOverride || lag === 1) r = (rev[t + 1] - rev[t]) / sc[t];
+      else if (lag === 0) r = (rev[t] - rev[t - 1]) / sc[t];
+      else if (lag === 2) r = t <= 8 ? (rev[t + 2] - rev[t + 1]) / sc[t] : (t === 9 ? rev[10] * g[10] / sc[9] : rev[11] * g[11] / sc[10]);
+      else if (lag === 3) r = t <= 8 ? (rev[t + 3 > 11 ? 11 : t + 3] - rev[t + 2]) / sc[t] : (t === 9 ? rev[11] * g[11] / sc[9] : reinv[9] * (1 + g[11]));
+      else r = (rev[t + 1] - rev[t]) / sc[t];
+      reinv[t] = r;
+    }
+    reinv[11] = gT > 0 ? (gT / roicT) * ebitAT[11] : 0;
+    // FCFF row 9
+    for (t = 1; t <= T; t++) fcff[t] = ebitAT[t] - reinv[t];
+    // discount factors row 13, PV row 14
+    df[1] = 1 / (1 + wacc[1]);
+    for (t = 2; t <= 10; t++) df[t] = df[t - 1] / (1 + wacc[t]);
+    var pv10 = 0;
+    for (t = 1; t <= 10; t++) { pv[t] = fcff[t] * df[t]; pv10 += pv[t]; }
+    // terminal value B16–B21
+    var tv = fcff[11] / (wacc[11] - gT), pvTV = tv * df[10], sumPV = pvTV + pv10;
+    // failure B22–B24
+    var pFail = inp.failureOn ? +inp.failProb : 0;
+    var proceeds = inp.failBasis === 'B' ? (+inp.bookEquity + +inp.bookDebt) * +inp.failProceeds : sumPV * +inp.failProceeds;
+    var opAssets = sumPV * (1 - pFail) + proceeds * pFail;
+    // equity bridge B25–B33
+    var debt = +inp.bookDebt, minority = +inp.minority || 0;
+    var cashAdj = inp.trappedOn ? +inp.cash - +inp.trappedCash * (+inp.taxMarg - +inp.trappedTax) : +inp.cash;
+    var equity = opAssets - debt - minority + cashAdj + (+inp.nonOp || 0);
+    var opt = inp.optionsOn ? optionValue(inp) : { perOption: 0, total: 0 };
+    var equityCommon = equity - opt.total;
+    var vps = equityCommon / +inp.shares;
+    // invested capital row 39, ROIC row 40
+    ic[0] = +inp.bookEquity + +inp.bookDebt - +inp.cash + rd.asset;
+    for (t = 1; t <= 10; t++) ic[t] = ic[t - 1] + reinv[t];
+    roic[0] = ebitAT[0] / ic[0];
+    for (t = 1; t <= 10; t++) roic[t] = ebitAT[t] / ic[t - 1];
+    roic[11] = roicT;
+
+    return {
+      g: g, rev: rev, m: m, ebit: ebit, tax: tax, nol: nol, ebitAT: ebitAT, sc: sc, reinv: reinv,
+      fcff: fcff, wacc: wacc, df: df, pv: pv, ic: ic, roic: roic,
+      gT: gT, waccT: waccT, roicT: roicT,
+      tv: tv, pvTV: pvTV, pv10: pv10, sumPV: sumPV, pFail: pFail, proceeds: proceeds, opAssets: opAssets,
+      debt: debt, minority: minority, cash: cashAdj, nonOp: +inp.nonOp || 0,
+      equity: equity, options: opt.total, optionPer: opt.perOption, equityCommon: equityCommon,
+      shares: +inp.shares, vps: vps, price: +inp.price, priceToValue: +inp.price / vps,
+      rd: rd, salesToCap0: rev[0] / ic[0]
+    };
+  }
+
+  /* ---------- Monte Carlo (VBA ValueGenerator + GenerateCorrelatedSamples) ---------- */
+  function cholesky(A) {
+    var n = A.length, L = [];
+    for (var i = 0; i < n; i++) { L[i] = []; for (var j = 0; j < n; j++) L[i][j] = 0; }
+    for (i = 0; i < n; i++) for (var j = 0; j <= i; j++) {
+      var s = 0; for (var k = 0; k < j; k++) s += L[i][k] * L[j][k];
+      if (i === j) { var d = A[i][i] - s; if (d <= 0) throw new Error('Correlation matrix is not positive definite'); L[i][j] = Math.sqrt(d); }
+      else L[i][j] = (A[i][j] - s) / L[j][j];
+    }
+    return L;
+  }
+  function makeNormal(rng) {
+    var spare = null;
+    return function () {
+      if (spare !== null) { var s = spare; spare = null; return s; }
+      var u, v, r;
+      do { u = rng() * 2 - 1; v = rng() * 2 - 1; r = u * u + v * v; } while (r === 0 || r >= 1);
+      var c = Math.sqrt(-2 * Math.log(r) / r); spare = v * c; return u * c;
+    };
+  }
+  // deterministic PRNG for reproducible runs (mulberry32)
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function percentileExc(sorted, p) {
+    var n = sorted.length, rank = p * (n + 1);
+    if (rank < 1) return sorted[0]; if (rank > n) return sorted[n - 1];
+    var lo = Math.floor(rank), fr = rank - lo;
+    return lo >= n ? sorted[n - 1] : sorted[lo - 1] + fr * (sorted[lo] - sorted[lo - 1]);
+  }
+  function runMonteCarlo(inp, mc, trials, seed) {
+    var means = [+mc.mean[0], +mc.mean[1], +mc.mean[2], +mc.mean[3]];
+    var sds = [+mc.sd[0], +mc.sd[1], +mc.sd[2], +mc.sd[3]];
+    var L = cholesky(mc.corr);
+    var rng = seed == null ? Math.random : mulberry32(seed), normal = makeNormal(rng);
+    var values = new Array(trials), samples = [];
+    var base = Object.assign({}, inp);
+    for (var i = 0; i < trials; i++) {
+      var z = [normal(), normal(), normal(), normal()], x = [0, 0, 0, 0];
+      for (var j = 0; j < 4; j++) { var s = 0; for (var k = 0; k <= j; k++) s += L[j][k] * z[k]; x[j] = s * sds[j] + means[j]; }
+      // ValueGenerator: B27 ← growth, B28 ← margin, B30 & B31 ← sales/capital, CoC!B12 ← WACC
+      base.gCAGR = x[0]; base.mTarget = x[1]; base.sc1 = x[2]; base.sc2 = x[2]; base.wacc = x[3];
+      values[i] = runDCF(base).vps;
+      if (i < 5) samples.push(x.slice());
+    }
+    var sorted = values.slice().sort(function (a, b) { return a - b; });
+    var sum = 0; for (i = 0; i < trials; i++) sum += values[i];
+    var mean = sum / trials, v = 0; for (i = 0; i < trials; i++) v += (values[i] - mean) * (values[i] - mean);
+    var sd = Math.sqrt(v / (trials - 1));
+    var pct = {}; [0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99].forEach(function (p) { pct[p] = percentileExc(sorted, p); });
+    var above = 0; for (i = 0; i < trials; i++) if (values[i] > +inp.price) above++;
+    // histogram
+    var bins = 30, lo = pct[0.01], hi = pct[0.99]; if (!(hi > lo)) { lo = sorted[0]; hi = sorted[trials - 1] + 1e-9; }
+    var w = (hi - lo) / bins, counts = new Array(bins).fill(0);
+    for (i = 0; i < trials; i++) { var b = Math.floor((values[i] - lo) / w); if (b < 0) b = 0; if (b >= bins) b = bins - 1; counts[b]++; }
+    return { values: values, sorted: sorted, mean: mean, median: pct[0.5], sd: sd, pct: pct, pAbove: above / trials,
+             hist: { lo: lo, hi: hi, w: w, counts: counts }, samples: samples, min: sorted[0], max: sorted[trials - 1] };
+  }
+  function mcDefaults() {
+    return {
+      mean: [0.057186, 0.0875778119777792, 1.77307623520506, 0.1029],
+      sd: [0.03, 0.02, 0.25, 0.008],
+      corr: corrPresets().Default
+    };
+  }
+  // read directly from the workbook's 'Monte Carlo' sheet rows 17–36
+  function corrPresets() {
+    return {
+      'Default': [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+      'EX1 — linked': [[1, 0.4, 0.2, 0.2], [0.4, 1, 0.4, 0.4], [0.2, 0.4, 1, 0.4], [0.2, 0.4, 0.4, 1]],
+      'EX2 — independent': [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+      'EX3 — mixed signs': [[1, -0.5, 0.5, -0.2], [-0.5, 1, 0, -0.3], [0.5, 0, 1, -0.4], [-0.2, -0.3, -0.4, 1]]
+    };
+  }
+
+  /* ---------- Sensitivity: value/share over WACC × terminal growth ---------- */
+  function sensitivity(inp, waccs, gs) {
+    var grid = [];
+    for (var i = 0; i < waccs.length; i++) { grid[i] = []; for (var j = 0; j < gs.length; j++) {
+      var b = Object.assign({}, inp, { wacc: waccs[i], gOverride: true, gTerm: gs[j] });
+      grid[i][j] = runDCF(b).vps;
+    } }
+    return grid;
+  }
+
+  return { exampleInputs: exampleInputs, appleInputs: appleInputs, runDCF: runDCF, runMonteCarlo: runMonteCarlo,
+           mcDefaults: mcDefaults, corrPresets: corrPresets, cholesky: cholesky, optionValue: optionValue,
+           rdConverter: rdConverter, normCdf: normCdf, sensitivity: sensitivity, percentileExc: percentileExc, mulberry32: mulberry32 };
+});
+
+</script>
+<script>
+(function(){
+'use strict';
+var G = window.Ginzu;
+var WORKBOOK_VPS = 109.874035928238; // 'Valuation output'!B33 of ginzu_aapl.xlsb
+
+/* ---------- storage (guarded: Safari file:// throws) ---------- */
+var mem = {};
+var store = {
+  get: function(k){ try { var v = localStorage.getItem(k); return v == null ? mem[k] : v; } catch(e){ return mem[k]; } },
+  set: function(k,v){ mem[k]=v; try { localStorage.setItem(k,v); } catch(e){} },
+  del: function(k){ delete mem[k]; try { localStorage.removeItem(k); } catch(e){} }
+};
+
+/* ---------- field schema (mirrors the workbook's Input sheet) ---------- */
+var FIELDS = [
+ {g:'Company & base year', open:true, k:'company', l:'Company', t:'text'},
+ {k:'units', l:'Units', t:'text'},
+ {k:'revenue', l:'Revenues', t:'num'},
+ {k:'ebit', l:'Operating income (EBIT)', t:'num'},
+ {k:'bookEquity', l:'Book value of equity', t:'num'},
+ {k:'bookDebt', l:'Book value of debt', t:'num'},
+ {k:'cash', l:'Cash & marketable securities', t:'num'},
+ {k:'nonOp', l:'Cross holdings & non-operating assets', t:'num'},
+ {k:'minority', l:'Minority interests', t:'num'},
+ {k:'shares', l:'Shares outstanding', t:'num'},
+ {k:'price', l:'Current stock price', t:'num', step:0.01},
+ {k:'taxEff', l:'Effective tax rate', t:'pct'},
+ {k:'taxMarg', l:'Marginal tax rate', t:'pct'},
+ {g:'Value drivers', open:true, k:'g1', l:'Revenue growth — next year', t:'pct'},
+ {k:'gCAGR', l:'Revenue CAGR — years 2–5', t:'pct'},
+ {k:'m1', l:'Operating margin — next year', t:'pct'},
+ {k:'mTarget', l:'Target pre-tax operating margin', t:'pct'},
+ {k:'convYear', l:'Year margin converges', t:'num', step:1},
+ {k:'sc1', l:'Sales-to-capital — years 1–5', t:'num', step:0.01},
+ {k:'sc2', l:'Sales-to-capital — years 6–10', t:'num', step:0.01},
+ {g:'Cost of capital', open:true, k:'rf', l:'Risk-free rate', t:'pct'},
+ {k:'wacc', l:'Cost of capital — years 1–5', t:'pct'},
+ {k:'matureERP', l:'Mature-market premium (default terminal WACC = rf + this)', t:'pct'},
+ {g:'Terminal-year assumptions', k:'overrideTermWACC', l:'Override cost of capital after year 10', t:'bool'},
+ {k:'termWACC', l:'Cost of capital after year 10', t:'pct', dep:'overrideTermWACC'},
+ {k:'overrideTermROIC', l:'Override return on capital after year 10 (else = terminal WACC)', t:'bool'},
+ {k:'termROIC', l:'Return on capital after year 10', t:'pct', dep:'overrideTermROIC'},
+ {k:'gOverride', l:'Override growth in perpetuity (else = risk-free rate)', t:'bool'},
+ {k:'gTerm', l:'Growth rate in perpetuity', t:'pct', dep:'gOverride'},
+ {k:'rfOverride', l:'Change the risk-free rate after year 10', t:'bool'},
+ {k:'rfAfter', l:'Risk-free rate after year 10', t:'pct', dep:'rfOverride'},
+ {k:'taxOverride', l:'Keep the effective tax rate (no drift to marginal)', t:'bool'},
+ {g:'Failure, NOL, cash, lag', k:'failureOn', l:'Allow for a probability of failure', t:'bool'},
+ {k:'failProb', l:'Probability of failure', t:'pct', dep:'failureOn'},
+ {k:'failBasis', l:'Distress proceeds tied to', t:'select', opts:[['V','Fair value'],['B','Book capital']], dep:'failureOn'},
+ {k:'failProceeds', l:'Proceeds as % of that base', t:'pct', dep:'failureOn'},
+ {k:'nolOn', l:'Net operating losses carried in', t:'bool'},
+ {k:'nol', l:'NOL entering year 1', t:'num', dep:'nolOn'},
+ {k:'trappedOn', l:'Trapped cash / cash discount', t:'bool'},
+ {k:'trappedCash', l:'Trapped cash balance', t:'num', dep:'trappedOn'},
+ {k:'trappedTax', l:'Foreign tax rate on that cash', t:'pct', dep:'trappedOn'},
+ {k:'lagOverride', l:'Override the reinvestment lag (default 1 year)', t:'bool'},
+ {k:'lag', l:'Lag in years', t:'select', opts:[[0,'0 — no lag'],[1,'1 year'],[2,'2 years'],[3,'3 years']], dep:'lagOverride'},
+ {g:'R&D capitalisation', k:'rdOn', l:'Capitalise R&D', t:'bool'},
+ {k:'rdYears', l:'Amortisation period (years, max 10)', t:'num', step:1, dep:'rdOn'},
+ {k:'rdCurrent', l:'Current year R&D expense', t:'num', dep:'rdOn'},
+ {k:'rdPast', l:'Past R&D, year −1 … −10 (comma-separated)', t:'list', dep:'rdOn'},
+ {g:'Employee options', k:'optionsOn', l:'Employee options outstanding', t:'bool'},
+ {k:'optN', l:'Number of options', t:'num', dep:'optionsOn'},
+ {k:'optStrike', l:'Average strike price', t:'num', step:0.01, dep:'optionsOn'},
+ {k:'optMaturity', l:'Average maturity (years)', t:'num', step:0.1, dep:'optionsOn'},
+ {k:'optSigma', l:'Stock price volatility (σ, annual)', t:'pct', dep:'optionsOn'},
+ {k:'optDiv', l:'Dividend yield', t:'pct', dep:'optionsOn'}
+];
+var MCVARS = [
+  {l:'Revenue CAGR, years 2–5', k:'gCAGR', pct:true},
+  {l:'Target operating margin', k:'mTarget', pct:true},
+  {l:'Sales-to-capital (yrs 1–10)', k:'sc1', pct:false},
+  {l:'Cost of capital, years 1–5', k:'wacc', pct:true}
+];
+var CORR_LABELS = ['Growth','Margin','S/Cap','WACC'];
+
+/* ---------- state ---------- */
+var state = { inp: G.appleInputs(), mc: G.mcDefaults(), trials: 5000, seed: '', preset: 'Default' };
+// Apple case: the MC means default to the company's own long-term inputs (the workbook's example means belong to the example company)
+function syncMeans(){ state.mc.mean = [+state.inp.gCAGR, +state.inp.mTarget, +state.inp.sc1, +state.inp.wacc]; }
+syncMeans();
+var lastDCF = null, lastMC = null;
+
+function load(){
+  var raw = store.get('ginzu-state-v1'); if(!raw) return;
+  try { var s = JSON.parse(raw); if(s && s.inp && s.mc){ state = s; } } catch(e){}
+}
+var saveT = null;
+function save(){ clearTimeout(saveT); saveT = setTimeout(function(){ store.set('ginzu-state-v1', JSON.stringify(state)); }, 250); }
+
+/* ---------- helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function fmtN(x, d){ if(!isFinite(x)) return '—'; d = d == null ? 0 : d; return x.toLocaleString('en-US',{minimumFractionDigits:d, maximumFractionDigits:d}); }
+function fmtP(x, d){ if(!isFinite(x)) return '—'; d = d == null ? 2 : d; return (x*100).toFixed(d)+'%'; }
+function fmtM(x){ if(!isFinite(x)) return '—'; return '$'+fmtN(x, 2); }
+function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+/* ---------- form ---------- */
+function buildForm(){
+  var html = '', open = false;
+  FIELDS.forEach(function(f, i){
+    if(f.g){ if(i>0) html += '</details>'; html += '<details class="group"'+(f.open?' open':'')+'><summary>'+esc(f.g)+'</summary>'; }
+    var dep = f.dep ? ' dep' : '';
+    var id = 'f_'+f.k;
+    if(f.t === 'bool'){
+      html += '<div class="field'+dep+'" data-k="'+f.k+'"><label for="'+id+'">'+esc(f.l)+'</label><input class="switch sw" type="checkbox" id="'+id+'" data-k="'+f.k+'"></div>';
+    } else if(f.t === 'select'){
+      html += '<div class="field'+dep+'" data-k="'+f.k+'" data-dep="'+(f.dep||'')+'"><label for="'+id+'">'+esc(f.l)+'</label><select id="'+id+'" data-k="'+f.k+'">'+f.opts.map(function(o){ return '<option value="'+esc(o[0])+'">'+esc(o[1])+'</option>'; }).join('')+'</select></div>';
+    } else if(f.t === 'pct'){
+      html += '<div class="field pct'+dep+'" data-k="'+f.k+'" data-dep="'+(f.dep||'')+'"><label for="'+id+'">'+esc(f.l)+'</label><input type="number" step="0.01" id="'+id+'" data-k="'+f.k+'" data-t="pct" inputmode="decimal"><span class="unit">%</span></div>';
+    } else if(f.t === 'text' || f.t === 'list'){
+      html += '<div class="field'+dep+'" data-k="'+f.k+'" data-dep="'+(f.dep||'')+'"><label for="'+id+'">'+esc(f.l)+'</label><input type="text" id="'+id+'" data-k="'+f.k+'" data-t="'+f.t+'"></div>';
+    } else {
+      html += '<div class="field'+dep+'" data-k="'+f.k+'" data-dep="'+(f.dep||'')+'"><label for="'+id+'">'+esc(f.l)+'</label><input type="number" step="'+(f.step||'any')+'" id="'+id+'" data-k="'+f.k+'" data-t="num" inputmode="decimal"></div>';
+    }
+  });
+  html += '</details>';
+  $('form').innerHTML = html;
+  $('form').addEventListener('input', onField);
+  $('form').addEventListener('change', onField);
+}
+function fillForm(){
+  FIELDS.forEach(function(f){
+    var el = $('f_'+f.k); if(!el) return;
+    var v = state.inp[f.k];
+    if(f.t === 'bool') el.checked = !!v;
+    else if(f.t === 'pct') el.value = isFinite(v) ? +(v*100).toFixed(6) : '';
+    else if(f.t === 'list') el.value = (v||[]).join(', ');
+    else el.value = v == null ? '' : v;
+  });
+  FIELDS.forEach(function(f){ if(f.dep){ var row = $('form').querySelector('.field[data-k="'+f.k+'"]'); if(row) row.classList.toggle('off', !state.inp[f.dep]); } });
+}
+function onField(e){
+  var el = e.target; var k = el.getAttribute('data-k'); if(!k) return;
+  var f = FIELDS.filter(function(x){ return x.k===k; })[0]; if(!f) return;
+  if(f.t === 'bool'){ state.inp[k] = el.checked; fillForm(); }
+  else if(f.t === 'pct'){ var p = parseFloat(el.value); if(isFinite(p)) state.inp[k] = p/100; }
+  else if(f.t === 'num'){ var n = parseFloat(el.value); if(isFinite(n)) state.inp[k] = n; }
+  else if(f.t === 'list'){ state.inp[k] = el.value.split(/[,\s]+/).filter(function(s){return s!=='';}).map(Number).map(function(x){ return isFinite(x)?x:0; }); }
+  else if(f.t === 'select'){ state.inp[k] = f.k==='lag' ? +el.value : el.value; }
+  else state.inp[k] = el.value;
+  render(); save();
+}
+
+/* ---------- Monte Carlo form ---------- */
+function buildMC(){
+  $('mcvars').innerHTML = MCVARS.map(function(v,i){
+    return '<div class="mcfield"><span>'+esc(v.l)+'</span><input type="number" step="any" data-mc="mean" data-i="'+i+'" inputmode="decimal"><input type="number" step="any" data-mc="sd" data-i="'+i+'" inputmode="decimal"></div>';
+  }).join('');
+  var sel = $('corrPreset'); var presets = G.corrPresets();
+  sel.innerHTML = Object.keys(presets).map(function(n){ return '<option>'+esc(n)+'</option>'; }).join('') + '<option>Custom</option>';
+  var t = '<tr><th></th>'+CORR_LABELS.map(function(l){ return '<th>'+l+'</th>'; }).join('')+'</tr>';
+  for(var i=0;i<4;i++){ t += '<tr><th>'+CORR_LABELS[i]+'</th>'; for(var j=0;j<4;j++){ t += '<td><input type="number" step="0.05" min="-1" max="1" data-ci="'+i+'" data-cj="'+j+'"'+(i===j?' disabled':'')+' inputmode="decimal"></td>'; } t += '</tr>'; }
+  $('corr').innerHTML = t;
+  $('mcvars').addEventListener('input', function(e){ var el=e.target, i=+el.getAttribute('data-i'), what=el.getAttribute('data-mc'); var v=parseFloat(el.value); if(!isFinite(v)) return; state.mc[what][i] = MCVARS[i].pct ? v/100 : v; save(); });
+  $('corr').addEventListener('input', function(e){ var el=e.target, i=+el.getAttribute('data-ci'), j=+el.getAttribute('data-cj'); var v=parseFloat(el.value); if(!isFinite(v)) return; v=Math.max(-1,Math.min(1,v)); state.mc.corr[i][j]=v; state.mc.corr[j][i]=v; state.preset='Custom'; sel.value='Custom'; fillCorr(); save(); });
+  sel.addEventListener('change', function(){ var p = presets[sel.value]; if(p){ state.mc.corr = p.map(function(r){ return r.slice(); }); state.preset = sel.value; fillCorr(); save(); } });
+  $('trials').addEventListener('change', function(){ var n = Math.max(100, Math.min(200000, Math.round(+$('trials').value||5000))); $('trials').value = n; state.trials = n; save(); });
+  $('seed').addEventListener('change', function(){ state.seed = $('seed').value; save(); });
+  $('run').addEventListener('click', runMC);
+  $('syncMeans').addEventListener('click', function(){ syncMeans(); fillMC(); save(); runMC(); });
+}
+function fillMC(){
+  var ins = $('mcvars').querySelectorAll('input');
+  ins.forEach(function(el){ var i=+el.getAttribute('data-i'), what=el.getAttribute('data-mc'); var v = state.mc[what][i]; el.value = MCVARS[i].pct ? +(v*100).toFixed(4) : +(+v).toFixed(4); });
+  $('corrPreset').value = state.preset || 'Custom';
+  fillCorr(); $('trials').value = state.trials; $('seed').value = state.seed || '';
+}
+function fillCorr(){ $('corr').querySelectorAll('input').forEach(function(el){ el.value = state.mc.corr[+el.getAttribute('data-ci')][+el.getAttribute('data-cj')]; }); }
+
+/* ---------- rendering ---------- */
+function showErr(msg){ var e=$('err'); if(msg){ e.textContent = msg; e.style.display='block'; } else e.style.display='none'; }
+function render(){
+  var out;
+  try { out = G.runDCF(state.inp); showErr(''); } catch(e){ showErr('Could not compute: '+e.message); return; }
+  lastDCF = out;
+  var u = state.inp.units || '';
+  $('t_vps').textContent = fmtM(out.vps);
+  $('t_units').textContent = 'per share · '+(state.inp.company||'');
+  $('t_price').textContent = fmtM(out.price);
+  var ptv = out.priceToValue; $('t_pv').innerHTML = isFinite(ptv) ? 'price is <b class="'+(ptv>1?'bad':'ok')+'">'+fmtP(ptv,1)+'</b> of value' : '—';
+  $('t_eq').textContent = fmtN(out.equityCommon, 0); $('t_eq_sub').textContent = u+(out.options?' · after options '+fmtN(out.options,0):' · common equity');
+  $('t_op').textContent = fmtN(out.opAssets, 0); $('t_op_sub').textContent = out.pFail>0 ? 'after '+fmtP(out.pFail,0)+' failure probability' : 'PV(FCFF 1–10) + PV(terminal)';
+  var b = [
+    ['PV of FCFF, years 1–10', out.pv10], ['PV of terminal value ('+fmtN(out.tv,0)+' at year 10)', out.pvTV],
+    ['Sum of PV', out.sumPV]];
+  if(out.pFail>0) b.push(['Value of operating assets (failure-adjusted)', out.opAssets]);
+  b.push(['− Debt', -out.debt]); if(out.minority) b.push(['− Minority interests', -out.minority]);
+  b.push(['+ Cash', out.cash]); if(out.nonOp) b.push(['+ Non-operating assets', out.nonOp]);
+  b.push(['Value of equity', out.equity]); if(out.options) b.push(['− Value of employee options ('+fmtM(out.optionPer)+' each)', -out.options]);
+  b.push(['÷ Shares outstanding', out.shares]);
+  $('bridge').innerHTML = b.map(function(r,i){ var tot = (i===b.length-1); return '<div class="k'+(tot?' tot':'')+'">'+esc(r[0])+'</div><div class="v'+(tot?' tot':'')+'">'+(tot? fmtN(r[1],0)+' → <b>'+fmtM(out.vps)+'</b>' : fmtN(r[1],0))+'</div>'; }).join('');
+  // table
+  var cols = ['Base year','1','2','3','4','5','6','7','8','9','10','Terminal'];
+  var rows = [
+    ['Revenue growth', out.g, 'p', 1], ['Revenues', out.rev, 'n', 0], ['Operating margin', out.m, 'p', 0], ['EBIT', out.ebit, 'n', 0],
+    ['Tax rate', out.tax, 'p', 0], ['EBIT(1−t)', out.ebitAT, 'n', 0], ['− Reinvestment', out.reinv, 'n', 1], ['FCFF', out.fcff, 'n', 1, 'hl'],
+    ['NOL balance', out.nol, 'n', 0, 'sub'], ['Cost of capital', out.wacc, 'p', 1], ['Cumulative discount factor', out.df, 'd', 1], ['PV(FCFF)', out.pv, 'n', 1, 'hl'],
+    ['Sales-to-capital', out.sc, 'd', 1, 'sub'], ['Invested capital', out.ic, 'n', 0, 'sub'], ['ROIC', out.roic, 'p', 0, 'sub']];
+  var h = '<thead><tr><th>'+esc(u)+'</th>'+cols.map(function(c){ return '<th>'+c+'</th>'; }).join('')+'</tr></thead><tbody>';
+  rows.forEach(function(r){
+    h += '<tr class="'+(r[4]||'')+'"><td>'+r[0]+'</td>';
+    for(var t=0;t<=11;t++){ var v = r[1][t]; var s = (v==null || t<r[3]) ? '' : (r[2]==='p' ? fmtP(v,2) : r[2]==='d' ? fmtN(v,4) : fmtN(v,0)); h += '<td>'+s+'</td>'; }
+    h += '</tr>';
+  });
+  $('dcftable').innerHTML = h+'</tbody>';
+  drawLines(); renderSens(); renderValidation();
+  if(lastMC) { updateMCTiles(); }
+}
+
+function renderSens(){
+  var w0 = +state.inp.wacc, g0 = lastDCF.gT;
+  var ws = [-0.02,-0.01,0,0.01,0.02].map(function(d){ return w0+d; });
+  var gs = [-0.01,-0.005,0,0.005,0.01].map(function(d){ return g0+d; });
+  var grid;
+  try { grid = G.sensitivity(state.inp, ws, gs); } catch(e){ $('senstable').innerHTML=''; return; }
+  var h = '<thead><tr><th>WACC ↓ / g →</th>'+gs.map(function(g){ return '<th>'+fmtP(g,1)+'</th>'; }).join('')+'</tr></thead><tbody>';
+  for(var i=0;i<5;i++){ h += '<tr><td>'+fmtP(ws[i],2)+'</td>'; for(var j=0;j<5;j++){ var v = grid[i][j]; var cls = 'cell'+(i===2&&j===2?' base':'')+(v>lastDCF.price?' up':' dn'); h += '<td class="'+cls+'">'+(isFinite(v)&&v>0? fmtM(v) : 'n/a')+'</td>'; } h += '</tr>'; }
+  $('senstable').innerHTML = h+'</tbody>';
+}
+
+function renderValidation(){
+  var apple = G.runDCF(G.appleInputs());
+  var diff = Math.abs(apple.vps - WORKBOOK_VPS)/WORKBOOK_VPS;
+  var mc0 = G.mcDefaults(); mc0.sd=[0,0,0,0]; var r0 = G.runMonteCarlo(G.appleInputs(), mc0, 50, 1);
+  var atMeans = G.runDCF(Object.assign({}, G.appleInputs(), {gCAGR:mc0.mean[0], mTarget:mc0.mean[1], sc1:mc0.mean[2], sc2:mc0.mean[2], wacc:mc0.mean[3]})).vps;
+  var degenerate = r0.values.every(function(v){ return Math.abs(v-atMeans)<1e-9; });
+  var bs = G.optionValue({price:100, optStrike:100, optMaturity:1, optSigma:0.2, optDiv:0, rf:0.05, optN:1e-9, shares:1e9}).perOption;
+  var rows = [
+    ['Apple FY2025 value / share — this engine, computed now', fmtM(apple.vps), ''],
+    ["Apple FY2025 value / share — workbook 'Valuation output'!B33", fmtM(WORKBOOK_VPS), ''],
+    ['Relative difference', diff.toExponential(2), diff<1e-9?'ok':'bad'],
+    ['Monte Carlo, all σ = 0 → equals DCF at the means ('+fmtM(atMeans)+')', degenerate?'PASS':'FAIL', degenerate?'ok':'bad'],
+    ['Black-Scholes call, S=K=100, T=1, σ=20%, r=5% (textbook 10.4506)', bs.toFixed(4), Math.abs(bs-10.4506)<1e-3?'ok':'bad'],
+    ['Cell-level harness (Node, 2026-09-09): 177 cells, max relative diff', '3.6 × 10⁻¹⁵', 'ok']
+  ];
+  $('vtable').innerHTML = '<tbody>'+rows.map(function(r){ return '<tr><td style="white-space:normal">'+r[0]+'</td><td class="'+r[2]+'">'+r[1]+'</td></tr>'; }).join('')+'</tbody>';
+}
+
+/* ---------- Monte Carlo run ---------- */
+function runMC(){
+  var seed = state.seed === '' || state.seed == null ? null : (+state.seed|0);
+  var res;
+  try { res = G.runMonteCarlo(state.inp, state.mc, state.trials, seed); showErr(''); } catch(e){ showErr('Simulation failed: '+e.message); return; }
+  lastMC = res; updateMCTiles(); drawHist();
+}
+function updateMCTiles(){
+  var r = lastMC; if(!r) return;
+  $('m_pabove').textContent = fmtP(r.pAbove,1); $('m_pabove').className = 'val '+(r.pAbove>=0.5?'good':'warn');
+  $('m_pabove_sub').textContent = fmtN(r.values.length,0)+' trials · price '+fmtM(lastDCF.price);
+  $('m_mean').textContent = fmtM(r.mean); $('m_det').textContent = 'deterministic '+fmtM(lastDCF.vps);
+  $('m_median').textContent = fmtM(r.median); $('m_sd').textContent = fmtM(r.sd); $('m_cv').textContent = 'CV '+fmtP(r.sd/r.mean,1);
+  var ps = [0.01,0.05,0.1,0.25,0.5,0.75,0.9,0.95,0.99];
+  $('pcts').innerHTML = ps.map(function(p){ return '<div class="pct"><div class="lab">P'+Math.round(p*100)+'</div><div class="val">'+fmtM(r.pct[p])+'</div></div>'; }).join('');
+  $('histcap').textContent = 'Distribution of simulated value per share — '+fmtN(r.values.length,0)+' trials, min '+fmtM(r.min)+', max '+fmtM(r.max)+' (bins span the 1st–99th percentiles).';
+}
+
+/* ---------- charts (canvas, no libraries) ---------- */
+function setupCanvas(c){
+  var dpr = window.devicePixelRatio||1, rect = c.getBoundingClientRect();
+  var w = Math.max(200, rect.width), h = 240; c.width = Math.round(w*dpr); c.height = Math.round(h*dpr); c.style.height = h+'px';
+  var ctx = c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+  ctx.font = '11px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif';
+  return {ctx:ctx, w:w, h:h};
+}
+function niceTicks(lo, hi, n){ var span = hi-lo; if(!(span>0)) return [lo]; var step = Math.pow(10, Math.floor(Math.log10(span/n))); var err = span/n/step; step *= err>=7.5?10:err>=3.5?5:err>=1.5?2:1; var t=[]; for(var v=Math.ceil(lo/step)*step; v<=hi+1e-9; v+=step) t.push(v); return t; }
+function drawLines(){
+  var c = $('lines'); if(!c || !lastDCF) return; var s = setupCanvas(c), ctx = s.ctx;
+  var pad = {l:58, r:12, t:12, b:26}, W = s.w-pad.l-pad.r, H = s.h-pad.t-pad.b;
+  var o = lastDCF, n = 12;
+  var series = [ {d:o.rev, col:cssVar('--bar')}, {d:o.fcff, col:cssVar('--good')}, {d:o.reinv, col:cssVar('--bar2')} ];
+  var lo = 0, hi = 0; series.forEach(function(sr){ for(var t=0;t<n;t++){ var v=sr.d[t]; if(isFinite(v)){ hi=Math.max(hi,v); lo=Math.min(lo,v);} } });
+  if(hi===lo) hi = lo+1;
+  var ticks = niceTicks(lo, hi, 5); lo = Math.min(lo, ticks[0]); hi = Math.max(hi, ticks[ticks.length-1]);
+  var x = function(t){ return pad.l + t/(n-1)*W; }, y = function(v){ return pad.t + (1-(v-lo)/(hi-lo))*H; };
+  ctx.strokeStyle = cssVar('--line'); ctx.fillStyle = cssVar('--muted'); ctx.lineWidth = 1; ctx.textAlign='right'; ctx.textBaseline='middle';
+  ticks.forEach(function(v){ ctx.beginPath(); ctx.moveTo(pad.l, y(v)); ctx.lineTo(pad.l+W, y(v)); ctx.stroke(); ctx.fillText(fmtN(v,0), pad.l-6, y(v)); });
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for(var t=0;t<n;t++){ ctx.fillText(t===0?'Base':t===11?'TY':String(t), x(t), pad.t+H+6); }
+  series.forEach(function(sr){ ctx.strokeStyle = sr.col; ctx.lineWidth = 2; ctx.beginPath(); var started=false; for(var t=0;t<n;t++){ var v=sr.d[t]; if(!isFinite(v)) continue; if(!started){ ctx.moveTo(x(t),y(v)); started=true; } else ctx.lineTo(x(t),y(v)); } ctx.stroke();
+    ctx.fillStyle = sr.col; for(t=0;t<n;t++){ var v2=sr.d[t]; if(!isFinite(v2)) continue; ctx.beginPath(); ctx.arc(x(t),y(v2),2.6,0,Math.PI*2); ctx.fill(); } });
+}
+function drawHist(){
+  var c = $('hist'); if(!c) return; var s = setupCanvas(c), ctx = s.ctx; var r = lastMC; if(!r) return;
+  var pad = {l:44, r:12, t:12, b:26}, W = s.w-pad.l-pad.r, H = s.h-pad.t-pad.b;
+  var hst = r.hist, maxC = Math.max.apply(null, hst.counts), lo = hst.lo, hi = hst.hi;
+  var price = lastDCF.price, det = lastDCF.vps;
+  var xlo = Math.min(lo, price, det), xhi = Math.max(hi, price, det); var span = xhi-xlo; xlo -= span*0.03; xhi += span*0.03;
+  var x = function(v){ return pad.l + (v-xlo)/(xhi-xlo)*W; }, y = function(cnt){ return pad.t + (1-cnt/maxC)*H; };
+  ctx.strokeStyle = cssVar('--line'); ctx.fillStyle = cssVar('--muted'); ctx.lineWidth=1; ctx.textAlign='right'; ctx.textBaseline='middle';
+  niceTicks(0, maxC, 4).forEach(function(v){ ctx.beginPath(); ctx.moveTo(pad.l, y(v)); ctx.lineTo(pad.l+W, y(v)); ctx.stroke(); ctx.fillText(fmtN(v,0), pad.l-6, y(v)); });
+  ctx.fillStyle = cssVar('--bar');
+  for(var i=0;i<hst.counts.length;i++){ var x0 = x(lo+i*hst.w), x1 = x(lo+(i+1)*hst.w); ctx.fillRect(x0+0.5, y(hst.counts[i]), Math.max(1,x1-x0-1), pad.t+H-y(hst.counts[i])); }
+  ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle = cssVar('--muted');
+  niceTicks(xlo, xhi, 6).forEach(function(v){ ctx.fillText(fmtM(v), x(v), pad.t+H+6); });
+  function vline(v, col, label, side){ ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(x(v), pad.t); ctx.lineTo(x(v), pad.t+H); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = col; ctx.textBaseline='top'; ctx.textAlign = side; ctx.fillText(label+' '+fmtM(v), x(v)+(side==='left'?4:-4), pad.t); }
+  vline(det, cssVar('--good'), 'DCF', det>=price?'left':'right'); vline(price, cssVar('--warn'), 'Price', price>det?'left':'right');
+}
+var resizeT=null; window.addEventListener('resize', function(){ clearTimeout(resizeT); resizeT=setTimeout(function(){ drawLines(); drawHist(); }, 120); });
+if(window.matchMedia){ try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ drawLines(); drawHist(); }); }catch(e){} }
+
+/* ---------- presets / reset ---------- */
+function applyInputs(inp, mc, preset){
+  state.inp = inp; if(mc){ state.mc = mc; state.preset = preset||'Default'; } else { syncMeans(); }
+  fillForm(); fillMC(); render(); save(); runMC();
+}
+$('loadApple').addEventListener('click', function(){ applyInputs(G.appleInputs(), null); });
+$('loadExample').addEventListener('click', function(){ applyInputs(G.exampleInputs(), G.mcDefaults(), 'Default'); });
+$('reset').addEventListener('click', function(){ store.del('ginzu-state-v1'); state = { inp: G.appleInputs(), mc: G.mcDefaults(), trials: 5000, seed: '', preset: 'Default' }; syncMeans(); fillForm(); fillMC(); render(); runMC(); });
+
+/* ---------- boot ---------- */
+buildForm(); buildMC(); load(); fillForm(); fillMC(); render(); runMC();
+})();
+</script>
+</body>
+</html>
