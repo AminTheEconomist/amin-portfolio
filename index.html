@@ -221,8 +221,21 @@
       (Claude Code / LLMs) — defining the problem, the finance logic, and the acceptance criteria, then iterating the
       build to a working result. I did not hand-write the production code; the value I bring is the domain framing and
       the ability to turn an idea into a functioning tool quickly.
+      <br><br><b>One exception:</b> the Verus work below was my job, not a directed build — I wrote those models and
+      that automation myself at Verus Valuations. The public version is a sanitized rebuild on synthetic data.
     </div>
     <div class="projgrid">
+
+      <div class="proj">
+        <div class="kicker">Asset Valuation &middot; employed work</div>
+        <h3>Verus Models Demo</h3>
+        <p>The two internal tools I built at Verus Valuations: log-linear depreciation models fitted in R and exported into an Excel estimator appraisers could price an asset with live, and a text-mining pipeline that pulled market-research comparables out of historical appraisal PDFs.</p>
+        <div class="role"><b>My role:</b> this was my job as Software &amp; Data Analyst, not a directed build — I taught myself the Excel automation and regex, and fitted the models. Because the real work is client-confidential, this public version reconstructs both tools on synthetic data: the generator writes known parameters, and the test suite asserts the pipeline recovers them.</div>
+        <div class="proj-foot">
+          <a class="live" href="https://github.com/AminTheEconomist/verus-models-demo" target="_blank" rel="noopener">View the code &#8599;</a>
+          <div class="tags"><span class="tag">R / regression</span><span class="tag">Excel modeling</span><span class="tag">PDF text-mining</span><span class="tag">Validation harness</span></div>
+        </div>
+      </div>
 
       <div class="proj">
         <div class="kicker">Equity Research</div>
@@ -231,16 +244,6 @@
         <div class="role"><b>My role:</b> defined the five analyst frameworks and the reasoning each applies — drawn from the CFA curriculum — then directed the build and reviewed every output.</div>
         <div class="proj-foot">
           <div class="tags"><span class="tag">Valuation logic</span><span class="tag">LLM orchestration</span><span class="tag">Research workflow</span></div>
-        </div>
-      </div>
-
-      <div class="proj">
-        <div class="kicker">Macro &amp; Modeling</div>
-        <h3>Whole-Economy Stack</h3>
-        <p>A system-dynamics macro-economic model paired with an equity valuation model — connecting graduate economics to a hands-on, simulate-and-inspect toolset.</p>
-        <div class="role"><b>My role:</b> specified the economic structure and the stock-and-flow relationships from my MA-Economics training; directed the implementation.</div>
-        <div class="proj-foot">
-          <div class="tags"><span class="tag">System dynamics</span><span class="tag">Macro modeling</span><span class="tag">Equity model</span></div>
         </div>
       </div>
 
