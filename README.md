@@ -2,7 +2,7 @@
 
 A single-page portfolio site for finance, risk, valuations, research, and quantitative-analysis roles.
 
-- **Live:** deployed on Vercel (link in repo settings / About)
+- **Live:** <https://amin-portfolio-theta.vercel.app> (deployed on Vercel)
 - **Source:** one self-contained `index.html` — no build step, no dependencies. Open it directly or serve it with any static host.
 - **`/ginzu/`** — Ginzu DCF + Monte Carlo, an interactive valuation model (single file, no dependencies). `ginzu/src/` holds the engine + page template and `ginzu/src/build.py` inlines them; `ginzu/validation/` is the cell-level test harness against Damodaran's workbook.
 

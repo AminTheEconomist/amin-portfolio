@@ -6,38 +6,43 @@
 <title>Amin Behrad — Finance Analyst &amp; AI Automation</title>
 <meta name="description" content="Amin Behrad, M.Sc. — finance analyst with graduate economics training, CFA Program (all three levels passed), FRM Exam (both parts passed), and hands-on AI automation. Vancouver, BC." />
 <meta name="author" content="Amin Behrad" />
-<link rel="canonical" href="https://aminbehrad.com/" />
+<link rel="canonical" href="https://amin-portfolio-theta.vercel.app/" />
 <!-- Open Graph / social share -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Amin Behrad — Finance Analyst & AI Automation" />
 <meta property="og:description" content="Graduate-trained economist · CFA Program (all three levels passed) · FRM Exam (both parts passed) · AI-augmented analyst. Vancouver, BC." />
-<meta property="og:url" content="https://aminbehrad.com/" />
+<meta property="og:url" content="https://amin-portfolio-theta.vercel.app/" />
+<meta property="og:site_name" content="Amin Behrad" />
+<meta property="og:image" content="https://amin-portfolio-theta.vercel.app/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Amin Behrad — Finance &amp; Economics Analyst, Vancouver, BC" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Amin Behrad — Finance Analyst & AI Automation" />
 <meta name="twitter:description" content="Graduate-trained economist · CFA Program (all three levels passed) · FRM Exam (both parts passed) · AI-augmented analyst." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f5f8b'/%3E%3Ctext x='32' y='44' font-family='Helvetica,Arial,sans-serif' font-size='34' font-weight='700' fill='white' text-anchor='middle'%3EAB%3C/text%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%231f5f8b'/%3E%3Ctext%20x='32'%20y='44'%20font-family='Helvetica,Arial,sans-serif'%20font-size='34'%20font-weight='700'%20fill='white'%20text-anchor='middle'%3EAB%3C/text%3E%3C/svg%3E" />
 <style>
   :root{
     --bg:#f7f8fa; --panel:#ffffff; --ink:#16202b; --muted:#5b6875;
-    --line:#e4e8ee; --accent:#1f5f8b; --accent-soft:#e8f1f8; --chip:#eef1f5;
+    --line:#e4e8ee; --accent:#1f5f8b; --accent-soft:#e8f1f8; --chip:#eef1f5; --on-accent:#ffffff;
     --shadow:0 1px 2px rgba(16,32,45,.04),0 8px 24px rgba(16,32,45,.06);
     --max:960px;
   }
   @media (prefers-color-scheme:dark){
     :root{
       --bg:#0e1319; --panel:#151c25; --ink:#e7edf3; --muted:#9aa7b4;
-      --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530;
+      --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530; --on-accent:#0e1319;
       --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"]{
     --bg:#0e1319; --panel:#151c25; --ink:#e7edf3; --muted:#9aa7b4;
-    --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530;
+    --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530; --on-accent:#0e1319;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
   }
   :root[data-theme="light"]{
     --bg:#f7f8fa; --panel:#ffffff; --ink:#16202b; --muted:#5b6875;
-    --line:#e4e8ee; --accent:#1f5f8b; --accent-soft:#e8f1f8; --chip:#eef1f5;
+    --line:#e4e8ee; --accent:#1f5f8b; --accent-soft:#e8f1f8; --chip:#eef1f5; --on-accent:#ffffff;
     --shadow:0 1px 2px rgba(16,32,45,.04),0 8px 24px rgba(16,32,45,.06);
   }
   *{box-sizing:border-box}
@@ -49,6 +54,7 @@
   }
   a{color:var(--accent); text-decoration:none}
   a:hover{text-decoration:underline}
+  .also a,footer a{text-decoration:underline}
   .wrap{max-width:var(--max); margin:0 auto; padding:0 20px}
 
   /* STICKY NAV */
@@ -58,8 +64,8 @@
   .nav a{font-size:13.5px; color:var(--muted); padding:6px 10px; border-radius:8px; white-space:nowrap}
   .nav a:hover{color:var(--ink); background:var(--chip); text-decoration:none}
   .nav .brand{font-weight:800; color:var(--ink); margin-right:auto}
-  .nav .cta{color:#fff; background:var(--accent); font-weight:600}
-  .nav .cta:hover{color:#fff; opacity:.92; background:var(--accent)}
+  .nav .cta{color:var(--on-accent); background:var(--accent); font-weight:600}
+  .nav .cta:hover{color:var(--on-accent); opacity:.92; background:var(--accent)}
 
   .section{padding:34px 0; border-top:1px solid var(--line); scroll-margin-top:64px}
   .section:first-of-type{border-top:0}
@@ -121,8 +127,8 @@
   .cta-box p{color:var(--muted); margin:0 auto 18px; max-width:520px; font-size:15px}
   .btns{display:flex; gap:12px; justify-content:center; flex-wrap:wrap}
   .btn{display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:10px; font-size:15px; font-weight:600; border:1px solid var(--accent); cursor:pointer}
-  .btn.primary{background:var(--accent); color:#fff}
-  .btn.primary:hover{opacity:.92; text-decoration:none; color:#fff}
+  .btn.primary{background:var(--accent); color:var(--on-accent)}
+  .btn.primary:hover{opacity:.92; text-decoration:none; color:var(--on-accent)}
   .btn.ghost{background:transparent; color:var(--accent)}
   .btn.ghost:hover{background:var(--panel); text-decoration:none}
 
@@ -162,10 +168,11 @@
 </nav>
 
 <div class="wrap" id="top">
+<main>
 
   <!-- HERO -->
   <header class="hero">
-    <div class="name">Amin Behrad<span style="font-weight:500;color:var(--muted)">, M.Sc.</span></div>
+    <h1 class="name">Amin Behrad<span style="font-weight:500;color:var(--muted)">, M.Sc.</span></h1>
     <div class="role">Finance &amp; Economics Analyst · CFA Program (all three levels passed) · FRM Exam (both parts passed)</div>
     <p class="lede">
       Graduate-trained economist and analyst pairing exam-tested finance fundamentals with hands-on AI automation.
@@ -173,24 +180,24 @@
       personal-finance systems to macro-economic models. That training and that AI edge are what I bring to a risk,
       valuations, research, or quantitative-analysis role.
     </p>
-    <nav class="contact">
+    <div class="contact">
       <a href="mailto:amin.behrad1991@gmail.com">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
         amin.behrad1991@gmail.com
       </a>
       <a href="https://www.linkedin.com/in/aminbehrad" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8V21H9z"/></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8V21H9z"/></svg>
         linkedin.com/in/aminbehrad
       </a>
       <a href="https://github.com/AminTheEconomist" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.36 1.12 2.94.85.09-.66.35-1.12.63-1.38-2.22-.26-4.55-1.14-4.55-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.36 1.12 2.94.85.09-.66.35-1.12.63-1.38-2.22-.26-4.55-1.14-4.55-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg>
         github.com/AminTheEconomist
       </a>
       <span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
         Vancouver, BC (Metro Vancouver) · Permanent Resident
       </span>
-    </nav>
+    </div>
   </header>
 
   <!-- CREDENTIALS BANNER -->
@@ -389,6 +396,7 @@
       </div>
     </div>
   </section>
+</main>
 
   <footer>
     Amin Behrad · Vancouver, BC · <a href="mailto:amin.behrad1991@gmail.com">amin.behrad1991@gmail.com</a><br>
