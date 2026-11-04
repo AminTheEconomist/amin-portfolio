@@ -17,4 +17,4 @@ python3 -m http.server 8000
 # then open http://localhost:8000
 ```
 
-Credential wording follows CFA Institute Standard VII(B) and the GARP Code of Conduct.
+I hold myself to the CFA Institute's Code of Ethics and Standards of Professional Conduct.
