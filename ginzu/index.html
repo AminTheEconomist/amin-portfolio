@@ -1,17 +1,28 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
 <html lang="en">
 <head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ginzu DCF + Monte Carlo — Amin Behrad</title>
 <meta name="description" content="Aswath Damodaran's Ginzu valuation model as a single interactive page — 10-year FCFF DCF plus a correlated Monte Carlo layer — validated cell-for-cell against the source workbook." />
 <meta name="author" content="Amin Behrad" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f5f8b'/%3E%3Ctext x='32' y='44' font-family='Helvetica,Arial,sans-serif' font-size='34' font-weight='700' fill='white' text-anchor='middle'%3EAB%3C/text%3E%3C/svg%3E" />
+<link rel="canonical" href="https://amin-portfolio-theta.vercel.app/ginzu/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Amin Behrad" />
+<meta property="og:title" content="Ginzu DCF + Monte Carlo — Amin Behrad" />
+<meta property="og:description" content="Aswath Damodaran's Ginzu valuation model as a single interactive page — 10-year FCFF DCF plus a correlated Monte Carlo layer." />
+<meta property="og:url" content="https://amin-portfolio-theta.vercel.app/ginzu/" />
+<meta property="og:image" content="https://amin-portfolio-theta.vercel.app/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Amin Behrad — Finance &amp; Economics Analyst, Vancouver, BC" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%231f5f8b'/%3E%3Ctext%20x='32'%20y='44'%20font-family='Helvetica,Arial,sans-serif'%20font-size='34'%20font-weight='700'%20fill='white'%20text-anchor='middle'%3EAB%3C/text%3E%3C/svg%3E" />
 <style>
   :root{
     --bg:#f7f8fa; --panel:#ffffff; --ink:#16202b; --muted:#5b6875;
     --line:#e4e8ee; --accent:#1f5f8b; --accent-soft:#e8f1f8; --chip:#eef1f5;
-    --good:#1d7a4b; --warn:#b4541a; --bar:#3b82c4; --bar2:#9cc3e6;
+    --good:#1d7a4b; --warn:#a94e16; --bar:#3b82c4; --bar2:#9cc3e6; --on-accent:#ffffff;
     --shadow:0 1px 2px rgba(16,32,45,.04),0 8px 24px rgba(16,32,45,.06);
     --max:1180px;
   }
@@ -19,14 +30,14 @@
     :root:not([data-theme="light"]){
       --bg:#0e1319; --panel:#151c25; --ink:#e7edf3; --muted:#9aa7b4;
       --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530;
-      --good:#4cc38a; --warn:#f0a35e; --bar:#5aa9e0; --bar2:#2f5a7d;
+      --good:#4cc38a; --warn:#f0a35e; --bar:#5aa9e0; --bar2:#2f5a7d; --on-accent:#0e1319;
       --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"]{
     --bg:#0e1319; --panel:#151c25; --ink:#e7edf3; --muted:#9aa7b4;
     --line:#25303c; --accent:#5aa9e0; --accent-soft:#16283a; --chip:#1c2530;
-    --good:#4cc38a; --warn:#f0a35e; --bar:#5aa9e0; --bar2:#2f5a7d;
+    --good:#4cc38a; --warn:#f0a35e; --bar:#5aa9e0; --bar2:#2f5a7d; --on-accent:#0e1319;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
   }
   *{box-sizing:border-box}
@@ -34,6 +45,7 @@
   body{margin:0; background:var(--bg); color:var(--ink);
     font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased}
   a{color:var(--accent); text-decoration:none} a:hover{text-decoration:underline}
+  p a,footer a{text-decoration:underline}
   a,code{overflow-wrap:anywhere}
   .wrap{max-width:var(--max); margin:0 auto; padding:0 18px}
   h1,h2,h3{line-height:1.25; margin:0}
@@ -79,7 +91,7 @@
   .switch:checked::after{left:18px; background:#fff}
   button{font:inherit; font-size:13px; font-weight:600; color:var(--ink); background:var(--chip); border:1px solid var(--line); border-radius:9px; padding:7px 12px; cursor:pointer}
   button:hover{filter:brightness(.97)}
-  button.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  button.primary{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
   .btnrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
 
   .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
@@ -174,12 +186,12 @@
       <h3 class="subhead">Reverse DCF — what the market price implies (one input at a time, others held)</h3>
       <div class="tiles" id="reverse"></div>
       <h3 class="subhead">Multiples — at the DCF value vs at the market price</h3>
-      <div class="tablewrap"><table id="multtable"></table></div>
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Implied multiples at the DCF value and at the market price"><table id="multtable"></table></div>
       <h3 class="subhead">Ten-year projection</h3>
-      <div class="tablewrap"><table id="dcftable"></table></div>
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Ten-year projection table"><table id="dcftable"></table></div>
       <div class="chartbox">
         <div class="legend"><span><i style="background:var(--bar)"></i>Revenues</span><span><i style="background:var(--good)"></i>FCFF</span><span><i style="background:var(--bar2)"></i>Reinvestment</span></div>
-        <canvas id="lines" height="240"></canvas>
+        <canvas id="lines" height="240" role="img" aria-label="Line chart of revenues, free cash flow to the firm and reinvestment over the ten forecast years plus the terminal year. The same figures are in the projection table above."></canvas>
         <div class="cap">Ten-year projection plus terminal year (units as entered).</div>
       </div>
     </section>
@@ -194,9 +206,9 @@
           <div class="btnrow"><button id="syncMeans">Set means = current inputs</button></div>
         </div>
         <div>
-          <div class="mchead" style="margin-bottom:4px">Correlation matrix &nbsp;<select id="corrPreset" style="font:inherit;font-size:12px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);padding:3px 6px"></select></div>
+          <div class="mchead" style="margin-bottom:4px">Correlation matrix &nbsp;<select id="corrPreset" aria-label="Correlation preset" style="font:inherit;font-size:12px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);padding:3px 6px"></select></div>
           <table class="corr" id="corr"></table>
-          <div class="mcfield" style="grid-template-columns:minmax(0,1fr) 92px 92px; margin-top:6px"><span>Trials · seed (blank = random)</span><input id="trials" type="number" min="100" max="200000" step="100" value="5000"><input id="seed" type="number" placeholder="random"></div>
+          <div class="mcfield" style="grid-template-columns:minmax(0,1fr) 92px 92px; margin-top:6px"><span>Trials · seed (blank = random)</span><input id="trials" aria-label="Number of trials" type="number" min="100" max="200000" step="100" value="5000"><input id="seed" aria-label="Random seed (blank = random)" type="number" placeholder="random"></div>
           <div class="btnrow"><button class="primary" id="run">Run simulation</button></div>
         </div>
       </div>
@@ -209,20 +221,20 @@
       <div class="pcts" id="pcts"></div>
       <div class="chartbox">
         <div class="legend"><span><i style="background:var(--bar)"></i>Value per share, by bin</span><span><i style="background:var(--warn)"></i>Current price</span><span><i style="background:var(--good)"></i>Deterministic value</span></div>
-        <canvas id="hist" height="240"></canvas>
+        <canvas id="hist" height="240" role="img" aria-label="Histogram of simulated value per share, with markers for the current price and the deterministic DCF value. Summary statistics are in the tiles above."></canvas>
         <div class="cap" id="histcap">Distribution of simulated value per share (1st–99th percentile range, 30 bins).</div>
       </div>
     </section>
 
     <section id="sens" class="panel">
       <h2 class="title">Sensitivity — cost of capital × growth in perpetuity</h2>
-      <div class="tablewrap"><table class="sens" id="senstable"></table></div>
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Sensitivity table: cost of capital by growth in perpetuity"><table class="sens" id="senstable"></table></div>
       <p class="note">Rows vary the years 1–5 cost of capital (the terminal cost of capital follows the override if set); columns vary the growth rate in perpetuity. Base case outlined.</p>
     </section>
 
     <section id="validation" class="panel">
       <h2 class="title">Validation — how I know it's right</h2>
-      <div class="tablewrap"><table class="vtable" id="vtable"></table></div>
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Validation results"><table class="vtable" id="vtable"></table></div>
       <p class="note">The source workbook (<code>ginzu_aapl.xlsb</code>, 19 sheets + VBA) holds Apple's FY2025 numbers. Its <code>'Valuation output'!B33</code> is <b>$109.874036</b>. The engine on this page is the exact file that a Node test harness ran against a dump of that sheet — <b>177 cells</b> (growth, revenue, margin, EBIT, tax, EBIT(1−t), reinvestment, FCFF, NOL, WACC, discount factors, PVs, invested capital, ROIC, terminal value, equity bridge) — with a maximum relative difference of <b>3.6 × 10⁻¹⁵</b> (harness run 2026-09-09). The Monte Carlo layer is checked three ways: against its own degenerate case (all standard deviations zero must reproduce the DCF at the means), by Cholesky reconstruction on all four presets with the sampled correlation of 20,000 draws landing on target, and — the check that matters — by replay: Excel ran the workbook's own <code>GenerateCorrelatedSamples</code> and <code>ValueGenerator</code> macros on the Apple inputs for 500 trials, and this engine re-valued every one of Excel's sampled input sets to a maximum relative difference of 8.8 × 10⁻¹² (the trial file is in the repository). The option pricer reproduces the textbook Black-Scholes call (S=K=100, T=1, σ=20%, r=5% → 10.4506).</p>
     </section>
 
@@ -242,7 +254,7 @@
   </main>
 </div>
 
-<footer class="wrap">
+<footer>
   <div>Amin Behrad — <a href="../">portfolio</a> · <a href="https://github.com/AminTheEconomist/amin-portfolio/tree/main/ginzu" target="_blank" rel="noopener">source</a> · inputs persist in this browser only.</div>
 </footer>
 </div>
@@ -716,12 +728,12 @@ function onField(e){
 /* ---------- Monte Carlo form ---------- */
 function buildMC(){
   $('mcvars').innerHTML = MCVARS.map(function(v,i){
-    return '<div class="mcfield"><span>'+esc(v.l)+'</span><input type="number" step="any" data-mc="mean" data-i="'+i+'" inputmode="decimal"><input type="number" step="any" data-mc="sd" data-i="'+i+'" inputmode="decimal"></div>';
+    return '<div class="mcfield"><span>'+esc(v.l)+'</span><input type="number" step="any" data-mc="mean" data-i="'+i+'" aria-label="'+esc(v.l)+' — mean" inputmode="decimal"><input type="number" step="any" data-mc="sd" data-i="'+i+'" aria-label="'+esc(v.l)+' — std. dev." inputmode="decimal"></div>';
   }).join('');
   var sel = $('corrPreset'); var presets = G.corrPresets();
   sel.innerHTML = Object.keys(presets).map(function(n){ return '<option>'+esc(n)+'</option>'; }).join('') + '<option>Custom</option>';
-  var t = '<tr><th></th>'+CORR_LABELS.map(function(l){ return '<th>'+l+'</th>'; }).join('')+'</tr>';
-  for(var i=0;i<4;i++){ t += '<tr><th>'+CORR_LABELS[i]+'</th>'; for(var j=0;j<4;j++){ t += '<td><input type="number" step="0.05" min="-1" max="1" data-ci="'+i+'" data-cj="'+j+'"'+(i===j?' disabled':'')+' inputmode="decimal"></td>'; } t += '</tr>'; }
+  var t = '<tr><td></td>'+CORR_LABELS.map(function(l){ return '<th>'+l+'</th>'; }).join('')+'</tr>';
+  for(var i=0;i<4;i++){ t += '<tr><th>'+CORR_LABELS[i]+'</th>'; for(var j=0;j<4;j++){ t += '<td><input type="number" step="0.05" min="-1" max="1" data-ci="'+i+'" data-cj="'+j+'" aria-label="Correlation, '+CORR_LABELS[i]+' with '+CORR_LABELS[j]+'"'+(i===j?' disabled':'')+' inputmode="decimal"></td>'; } t += '</tr>'; }
   $('corr').innerHTML = t;
   $('mcvars').addEventListener('input', function(e){ var el=e.target, i=+el.getAttribute('data-i'), what=el.getAttribute('data-mc'); var v=parseFloat(el.value); if(!isFinite(v)) return; state.mc[what][i] = MCVARS[i].pct ? v/100 : v; save(); });
   $('corr').addEventListener('input', function(e){ var el=e.target, i=+el.getAttribute('data-ci'), j=+el.getAttribute('data-cj'); var v=parseFloat(el.value); if(!isFinite(v)) return; v=Math.max(-1,Math.min(1,v)); state.mc.corr[i][j]=v; state.mc.corr[j][i]=v; state.preset='Custom'; sel.value='Custom'; fillCorr(); save(); });
